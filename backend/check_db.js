@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import dns from 'dns';
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 dotenv.config();
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/ecommerce').then(async () => {

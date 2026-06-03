@@ -3,6 +3,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import dns from 'dns';
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
@@ -19,9 +21,24 @@ dotenv.config();
 
 const app = express();
 
+// Trust proxy is required if deploying behind a reverse proxy like Railway/Render
+// This ensures express-rate-limit uses the actual client IP instead of the load balancer's IP
+app.set('trust proxy', 1);
+
 // Middleware
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5176', 'http://localhost:5174', 'http://localhost:5175'];
+if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+}
+
 app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5176', 'http://localhost:5174', 'http://localhost:5175'],
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 }));
 
@@ -104,4 +121,4 @@ mongoose.connect(MONGO_URI)
         }
         process.exit(1);
     });
-// Force restart 1
+// Force restart 2

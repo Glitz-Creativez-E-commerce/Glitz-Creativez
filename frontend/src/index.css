@@ -83,14 +83,14 @@
 
   /* Animated gradient background */
   .animated-gradient {
-    background: linear-gradient(-45deg, #f5c842, #ffd966, #dda15e, #fdc520);
+    background: linear-gradient(-45deg, #FF64B4, #4cc9f0, #ff389a, #00aeeb);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
   }
 
-  /* Primary Button - Light Gold Theme */
+  /* Primary Button - Brand Theme */
   .btn-primary {
-    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 text-gray-900 font-semibold rounded-xl bg-gradient-to-r from-primary-400 via-primary-300 to-primary-400 shadow-gold hover:shadow-gold-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 overflow-hidden;
+    @apply relative inline-flex items-center justify-center gap-2 px-6 py-3 text-white font-semibold rounded-xl bg-gradient-to-r from-primary-400 via-primary-300 to-primary-400 shadow-gold hover:shadow-gold-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 overflow-hidden;
   }
 
   .btn-primary::before {
@@ -154,24 +154,24 @@
     transform: translateX(-50%);
     width: 80%;
     height: 3px;
-    background: linear-gradient(90deg, transparent, #f5c842, transparent);
+    background: linear-gradient(90deg, transparent, #FF64B4, transparent);
   }
 
-  /* Custom Radio Button - Gold Theme */
+  /* Custom Radio Button - Brand Theme */
   input[type="radio"] {
     appearance: none;
     -webkit-appearance: none;
     width: 1rem;
     height: 1rem;
-    border: 2px solid #e2c19e;
+    border: 2px solid #ffc7e4;
     border-radius: 50%;
-    background-color: #fffdf7;
+    background-color: #fff0f7;
     cursor: pointer;
     transition: all 0.2s ease;
   }
 
   input[type="radio"]:checked {
-    border-color: #fdc520;
+    border-color: #ff389a;
     background-color: white;
   }
 
@@ -181,35 +181,35 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: 50%;
-    background-color: #fdc520;
+    background-color: #ff389a;
     margin: 2px auto;
   }
 
   input[type="radio"]:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(253, 197, 32, 0.2);
-    border-color: #fdc520;
+    box-shadow: 0 0 0 3px rgba(255, 100, 180, 0.2);
+    border-color: #ff389a;
   }
 
   input[type="radio"]:hover {
-    border-color: #fed94a;
+    border-color: #ff64b4;
   }
 
-  /* Custom Checkbox - Gold Theme */
+  /* Custom Checkbox - Brand Theme */
   input[type="checkbox"] {
     appearance: none;
     -webkit-appearance: none;
     width: 1.25rem;
     height: 1.25rem;
-    border: 2px solid #e2c19e;
+    border: 2px solid #ffc7e4;
     border-radius: 0.375rem;
-    background-color: #fffdf7;
+    background-color: #fff0f7;
     cursor: pointer;
     transition: all 0.2s ease;
   }
 
   input[type="checkbox"]:checked {
-    border-color: #fdc520;
+    border-color: #ff389a;
     background-color: white;
   }
 
@@ -218,7 +218,7 @@
     display: block;
     width: 0.35rem;
     height: 0.65rem;
-    border: solid #fdc520;
+    border: solid #ff389a;
     border-width: 0 2.5px 2.5px 0;
     transform: rotate(45deg);
     margin: 1px auto 0;
@@ -226,29 +226,29 @@
 
   input[type="checkbox"]:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(253, 197, 32, 0.2);
-    border-color: #fdc520;
+    box-shadow: 0 0 0 3px rgba(255, 100, 180, 0.2);
+    border-color: #ff389a;
   }
 
   input[type="checkbox"]:hover {
-    border-color: #fed94a;
+    border-color: #ff64b4;
   }
 
-  /* Custom Select Dropdown - Gold Theme */
+  /* Custom Select Dropdown - Brand Theme */
   select {
-    background-color: #fffdf7;
-    accent-color: #fdc520;
+    background-color: #fff0f7;
+    accent-color: #ff389a;
   }
 
   select:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(253, 197, 32, 0.2);
-    border-color: #fdc520;
+    box-shadow: 0 0 0 3px rgba(255, 100, 180, 0.2);
+    border-color: #ff389a;
   }
 
   select option {
-    background-color: #fffdf7 !important;
-    color: #7d5314 !important;
+    background-color: #fff0f7 !important;
+    color: #850d45 !important;
     padding: 8px 12px;
   }
 
@@ -258,15 +258,15 @@
   }
 
   select option:hover {
-    background-color: #fef3c3 !important;
-    color: #7d5314 !important;
+    background-color: #ffe3f1 !important;
+    color: #850d45 !important;
   }
 
   /* For Firefox */
   select option:checked,
   select:focus option:checked {
-    background: #fef3c3 linear-gradient(0deg, #fef3c3 0%, #fef3c3 100%);
-    color: #7d5314;
+    background: #ffe3f1 linear-gradient(0deg, #ffe3f1 0%, #ffe3f1 100%);
+    color: #850d45;
   }
 }
 
@@ -294,9 +294,9 @@
     -webkit-backdrop-filter: blur(12px);
   }
 
-  /* Gold glow effect - Lighter */
+  /* Brand glow effect */
   .glow-gold {
-    box-shadow: 0 0 30px rgba(253, 197, 32, 0.2);
+    box-shadow: 0 0 30px rgba(76, 201, 240, 0.2);
   }
 
   /* Subtle pattern */
@@ -305,7 +305,7 @@
     background-size: 20px 20px;
   }
 
-  /* Shimmer effect - Light Gold */
+  /* Shimmer effect - Brand Theme */
   .shimmer {
     @apply relative overflow-hidden;
   }
@@ -315,7 +315,7 @@
     @apply absolute inset-0;
     background: linear-gradient(90deg,
         transparent,
-        rgba(253, 197, 32, 0.1),
+        rgba(255, 100, 180, 0.1),
         transparent);
     transform: translateX(-100%);
     animation: shimmer 2s infinite;

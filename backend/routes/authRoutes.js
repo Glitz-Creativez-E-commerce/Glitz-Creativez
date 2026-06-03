@@ -9,6 +9,8 @@ import {
     getUsers,
     adminLogin,
     login,
+    verifyLoginOTP,
+    resendLoginOTP,
     sendOTP,
     registerWithOTP,
 } from '../controllers/authController.js';
@@ -26,6 +28,8 @@ router.get(
 
 // Auth routes
 router.post('/login', login);
+router.post('/verify-login-otp', verifyLoginOTP);
+router.post('/resend-login-otp', resendLoginOTP);
 router.post('/send-otp', sendOTP);
 router.post('/register-otp', registerWithOTP);
 

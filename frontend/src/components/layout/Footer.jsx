@@ -50,7 +50,7 @@ const Footer = () => {
                     {/* Brand Section */}
                     <div className="lg:col-span-4 space-y-6">
                         <Link to="/" className="inline-flex items-center gap-3">
-                            <img src={logoImg} alt="GiftHaven" className="h-24 w-auto" />
+                            <img src={logoImg} alt="Glitz Creativez" className="h-24 w-auto" />
                         </Link>
                         <p className="text-gray-500 leading-relaxed max-w-sm">
                             Curating unforgettable moments with premium gifts for every occasion.
@@ -113,7 +113,7 @@ const Footer = () => {
                         {/* Contact Info (Enhanced) */}
                         <div className="flex flex-col gap-4 w-full lg:w-auto">
                             <a
-                                href="mailto:hello@gifthaven.com"
+                                href="mailto:hello@glitzcreativez.com"
                                 className="group flex items-center gap-4 p-4 rounded-xl bg-secondary-50 hover:shadow-gold transition-all duration-300"
                             >
                                 <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-primary-500 group-hover:scale-110 transition-transform">
@@ -121,7 +121,7 @@ const Footer = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-semibold text-primary-600 uppercase tracking-wider mb-0.5">Email Us</p>
-                                    <span className="text-gray-900 font-medium group-hover:text-primary-700 transition-colors">hello@gifthaven.com</span>
+                                    <span className="text-gray-900 font-medium group-hover:text-primary-700 transition-colors">hello@glitzcreativez.com</span>
                                 </div>
                             </a>
 
@@ -141,7 +141,7 @@ const Footer = () => {
                 {/* Bottom Bar */}
                 <div className="mt-16 pt-8 border-t border-secondary-200 flex flex-col md:flex-row items-center justify-between gap-4">
                     <p className="text-gray-400 text-sm font-medium">
-                        © {new Date().getFullYear()} GiftHaven. Luxury Gifting Reimagined.
+                        &copy; {new Date().getFullYear()} Glitz Creativez. Luxury Gifting Reimagined.
                     </p>
                     <div className="flex items-center gap-6 text-sm text-gray-400 font-medium">
                         <Link to="/privacy" className="hover:text-primary-600 transition-colors">Privacy</Link>

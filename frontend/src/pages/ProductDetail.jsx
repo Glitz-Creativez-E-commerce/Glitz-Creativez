@@ -260,13 +260,11 @@ const ProductDetail = () => {
                         <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-card">
                             <AnimatePresence mode="wait">
                                 {(() => {
-                                    const currentDisplayImage = (selectedSize?.image && selectedImage === 0)
-                                        ? selectedSize.image
-                                        : product.images?.[selectedImage];
+                                    const currentDisplayImage = product.images?.[selectedImage];
 
                                     return (
                                         <motion.img
-                                            key={selectedSize?.image && selectedImage === 0 ? selectedSize.image : selectedImage}
+                                            key={selectedImage}
                                             initial={{ opacity: 0, scale: 1.05 }}
                                             animate={{ opacity: 1, scale: 1 }}
                                             exit={{ opacity: 0, scale: 0.95 }}

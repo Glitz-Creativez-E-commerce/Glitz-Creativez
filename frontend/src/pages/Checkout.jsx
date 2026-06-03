@@ -88,7 +88,7 @@ const Checkout = () => {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID,
                 amount: razorpayOrder.amount,
                 currency: razorpayOrder.currency,
-                name: 'GiftHaven',
+                name: 'Glitz Creativez',
                 description: 'Order Payment',
                 order_id: razorpayOrder.id,
                 prefill: {

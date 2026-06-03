@@ -5,23 +5,8 @@ import OTP from '../models/OTP.js';
 import generateToken from '../utils/generateToken.js';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
-import nodemailer from 'nodemailer';
+import { sendBrevoEmail } from '../utils/brevo.js';
 
-// Email Transporter with Pooling
-const createTransporter = () => {
-    return nodemailer.createTransport({
-        service: 'gmail',
-        pool: true, // Use connection pooling
-        maxConnections: 5,
-        maxMessages: 100,
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-};
-
-const transporter = createTransporter();
 
 // @desc    Handle Google Auth Callback
 // @route   GET /api/auth/google/callback
@@ -195,14 +180,15 @@ export const getUsers = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/admin-login
 // @access  Public
 export const adminLogin = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    const email = req.body.email ? req.body.email.trim() : '';
+    const { password } = req.body;
 
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@example.com').trim();
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
-    if (email === adminEmail && password === adminPassword) {
+    if (email.toLowerCase() === adminEmail.toLowerCase() && password === adminPassword) {
         // Find or create admin user in DB to attach an ID to the JWT
-        let adminUser = await User.findOne({ email });
+        let adminUser = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$', 'i') } });
 
         if (!adminUser) {
             adminUser = await User.create({
@@ -236,9 +222,10 @@ export const adminLogin = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 export const login = asyncHandler(async (req, res) => {
-    const { email, password } = req.body;
+    const email = req.body.email ? req.body.email.trim() : '';
+    const { password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$', 'i') } });
 
     if (!user) {
         res.status(401);
@@ -258,15 +245,38 @@ export const login = asyncHandler(async (req, res) => {
         user.lockUntil = undefined;
         await user.save();
 
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await OTP.findOneAndUpdate(
+            { email: user.email },
+            { otp, createdAt: Date.now() },
+            { upsert: true, new: true }
+        );
+
+        const htmlContent = `
+            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h2 style="color: #FF64B4; text-align: center;">Glitz Creativez Login Verification</h2>
+                <p>Hello ${user.name},</p>
+                <p>Use the following code to complete your login. This code will expire in 5 minutes.</p>
+                <div style="background: #fdf6b2; padding: 15px; text-align: center; border-radius: 8px;">
+                    <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4cc9f0;">${otp}</span>
+                </div>
+                <p style="margin-top: 20px; color: #666; font-size: 14px;">If you didn't request this code, please secure your account.</p>
+            </div>
+        `;
+
+        const emailSent = await sendBrevoEmail(user.email, user.name, 'Your Login Verification Code - Glitz Creativez', htmlContent);
+        
+        if (!emailSent) {
+            console.log(`[OTP] Sent code ${otp} to ${user.email} (Fallback console)`);
+        }
+
         res.json({
             success: true,
-            data: {
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                isAdmin: user.isAdmin,
-                token: generateToken(user._id),
-            },
+            requiresOtp: true,
+            email: user.email,
+            message: 'OTP sent to your email'
         });
     } else {
         // Failed login - increment attempts
@@ -283,6 +293,101 @@ export const login = asyncHandler(async (req, res) => {
         res.status(401);
         throw new Error('Invalid credentials');
     }
+});
+
+// @desc    Verify OTP for Login
+// @route   POST /api/auth/verify-login-otp
+// @access  Public
+export const verifyLoginOTP = asyncHandler(async (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        res.status(400);
+        throw new Error('Please provide email and OTP');
+    }
+
+    const otpRecord = await OTP.findOne({ email, otp });
+
+    if (!otpRecord) {
+        res.status(400);
+        throw new Error('Invalid or expired OTP');
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    // Delete used OTP
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    res.json({
+        success: true,
+        data: {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            isAdmin: user.isAdmin,
+            token: generateToken(user._id),
+        },
+    });
+});
+
+// @desc    Resend OTP for Login
+// @route   POST /api/auth/resend-login-otp
+// @access  Public
+export const resendLoginOTP = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        res.status(400);
+        throw new Error('Please provide an email');
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        res.status(404);
+        throw new Error('User not found');
+    }
+
+    // Check for cooldown (60 seconds)
+    const existingOTP = await OTP.findOne({ email });
+    if (existingOTP && (Date.now() - existingOTP.createdAt) < 60000) {
+        const waitTime = Math.ceil((60000 - (Date.now() - existingOTP.createdAt)) / 1000);
+        res.status(429);
+        throw new Error(`Please wait ${waitTime} seconds before requesting a new OTP`);
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+
+    await OTP.findOneAndUpdate(
+        { email },
+        { otp, createdAt: Date.now() },
+        { upsert: true, new: true }
+    );
+
+    const htmlContent = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #FF64B4; text-align: center;">Glitz Creativez Login Verification</h2>
+            <p>Hello ${user.name},</p>
+            <p>Use the following code to complete your login. This code will expire in 5 minutes.</p>
+            <div style="background: #fdf6b2; padding: 15px; text-align: center; border-radius: 8px;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4cc9f0;">${otp}</span>
+            </div>
+            <p style="margin-top: 20px; color: #666; font-size: 14px;">If you didn't request this code, please secure your account.</p>
+        </div>
+    `;
+
+    const emailSent = await sendBrevoEmail(email, user.name, 'Your New Login Verification Code - Glitz Creativez', htmlContent);
+
+    if (!emailSent) {
+        console.log(`[OTP] Sent new code ${otp} to ${email} (Fallback console)`);
+    }
+
+    res.json({ success: true, message: 'OTP resent successfully' });
 });
 
 // @desc    Send OTP to email
@@ -304,7 +409,7 @@ export const sendOTP = asyncHandler(async (req, res) => {
         throw new Error(`Please wait ${waitTime} seconds before requesting a new OTP`);
     }
 
-    const otp = Math.floor(1000 + Math.random() * 9000).toString(); // 4-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
 
     // Save/Update OTP in DB
     await OTP.findOneAndUpdate(
@@ -313,35 +418,24 @@ export const sendOTP = asyncHandler(async (req, res) => {
         { upsert: true, new: true }
     );
 
-    // Send email
-    console.log(`[OTP] Sent code ${otp} to ${email}`);
-
-    const mailOptions = {
-        from: `"GiftHaven" <${process.env.EMAIL_USER}>`,
-        to: email,
-        subject: 'Verify Your Account - GiftHaven',
-        html: `
-            <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
-                <h2 style="color: #f59e0b; text-align: center;">GiftHaven Verification</h2>
-                <p>Hello,</p>
-                <p>Use the following code to verify your account registration. This code will expire in 5 minutes.</p>
-                <div style="background: #fdf6b2; padding: 15px; text-align: center; border-radius: 8px;">
-                    <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #92400e;">${otp}</span>
-                </div>
-                <p style="margin-top: 20px; color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
-                <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
-                <p style="text-align: center; color: #999; font-size: 12px;">&copy; 2026 GiftHaven. All rights reserved.</p>
+    const htmlContent = `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+            <h2 style="color: #FF64B4; text-align: center;">Glitz Creativez Verification</h2>
+            <p>Hello,</p>
+            <p>Use the following code to verify your account registration. This code will expire in 5 minutes.</p>
+            <div style="background: #fdf6b2; padding: 15px; text-align: center; border-radius: 8px;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4cc9f0;">${otp}</span>
             </div>
-        `
-    };
+            <p style="margin-top: 20px; color: #666; font-size: 14px;">If you didn't request this code, please ignore this email.</p>
+            <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;" />
+            <p style="text-align: center; color: #999; font-size: 12px;">&copy; 2026 Glitz Creativez. All rights reserved.</p>
+        </div>
+    `;
 
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-        try {
-            await transporter.sendMail(mailOptions);
-        } catch (error) {
-            console.error('Email sending failed:', error);
-            // We don't throw here in dev, but in prod you might want to log it to an external service
-        }
+    const emailSent = await sendBrevoEmail(email, 'User', 'Verify Your Account - Glitz Creativez', htmlContent);
+
+    if (!emailSent) {
+        console.log(`[OTP] Sent code ${otp} to ${email} (Fallback console)`);
     }
 
     res.json({ success: true, message: 'OTP sent successfully' });

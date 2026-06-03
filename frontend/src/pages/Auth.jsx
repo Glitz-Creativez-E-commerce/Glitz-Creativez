@@ -20,11 +20,22 @@ const Auth = () => {
     const [isLogin, setIsLogin] = useState(true);
     const [showOtp, setShowOtp] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [resendTimer, setResendTimer] = useState(0);
     const [formData, setFormData] = useState({
         email: '',
         password: '',
         otp: ''
     });
+
+    useEffect(() => {
+        let interval;
+        if (showOtp && resendTimer > 0) {
+            interval = setInterval(() => {
+                setResendTimer((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [showOtp, resendTimer]);
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -65,10 +76,17 @@ const Auth = () => {
             }
 
             if (isLogin) {
-                dispatch(setCredentials(data.data));
-                dispatch(addToast({ type: 'success', message: 'Logged in successfully!' }));
+                if (data.requiresOtp) {
+                    setShowOtp(true);
+                    setResendTimer(60);
+                    dispatch(addToast({ type: 'success', message: 'OTP sent to your email!' }));
+                } else {
+                    dispatch(setCredentials(data.data));
+                    dispatch(addToast({ type: 'success', message: 'Logged in successfully!' }));
+                }
             } else {
                 setShowOtp(true);
+                setResendTimer(60);
                 dispatch(addToast({ type: 'success', message: 'OTP sent to your email!' }));
             }
         } catch (error) {
@@ -83,7 +101,8 @@ const Auth = () => {
         setIsLoading(true);
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/auth/register-otp`, {
+            const endpoint = isLogin ? '/api/auth/verify-login-otp' : '/api/auth/register-otp';
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
@@ -96,7 +115,30 @@ const Auth = () => {
             }
 
             dispatch(setCredentials(data.data));
-            dispatch(addToast({ type: 'success', message: 'Account created successfully!' }));
+            dispatch(addToast({ type: 'success', message: isLogin ? 'Logged in successfully!' : 'Account created successfully!' }));
+        } catch (error) {
+            dispatch(addToast({ type: 'error', message: error.message }));
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (resendTimer > 0) return;
+        setIsLoading(true);
+        try {
+            const endpoint = isLogin ? '/api/auth/resend-login-otp' : '/api/auth/send-otp';
+            const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: formData.email })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Failed to resend OTP');
+            
+            setResendTimer(60);
+            dispatch(addToast({ type: 'success', message: 'New OTP sent to your email!' }));
         } catch (error) {
             dispatch(addToast({ type: 'error', message: error.message }));
         } finally {
@@ -120,7 +162,7 @@ const Auth = () => {
                 {/* Logo */}
                 <div className="text-center mb-2">
                     <Link to="/" className="inline-block transition-transform hover:scale-105 active:scale-95">
-                        <img src={logoImg} alt="GiftHaven" className="h-20 w-auto" />
+                        <img src={logoImg} alt="Glitz Creativez" className="h-20 w-auto" />
                     </Link>
                 </div>
 
@@ -144,6 +186,7 @@ const Auth = () => {
                                 icon={<FiMail />}
                                 value={formData.email}
                                 onChange={handleChange}
+                                autoComplete="username"
                                 required
                             />
                             <Input
@@ -154,6 +197,7 @@ const Auth = () => {
                                 icon={<FiLock />}
                                 value={formData.password}
                                 onChange={handleChange}
+                                autoComplete="current-password"
                                 required
                             />
 
@@ -161,7 +205,7 @@ const Auth = () => {
                                 type="submit"
                                 variant="primary"
                                 className="w-full py-4 text-lg rounded-2xl group"
-                                loading={isLoading}
+                                isLoading={isLoading}
                                 icon={!isLogin ? <FiArrowRight className="group-hover:translate-x-1 transition-transform" /> : null}
                             >
                                 {isLogin ? 'Sign In' : 'Create Account'}
@@ -179,7 +223,7 @@ const Auth = () => {
                             <div className="mb-4">
                                 <h3 className="text-xl font-bold text-gray-900">Verify your email</h3>
                                 <p className="text-sm text-gray-500 mt-2">
-                                    We've sent a 4-digit code to <span className="font-bold text-gray-700">{formData.email}</span>
+                                    We've sent a 6-digit code to <span className="font-bold text-gray-700">{formData.email}</span>
                                 </p>
                             </div>
 
@@ -187,11 +231,12 @@ const Auth = () => {
                                 <Input
                                     name="otp"
                                     type="text"
-                                    placeholder="0000"
-                                    maxlength="4"
+                                    placeholder="000000"
+                                    maxLength="6"
                                     className="text-center text-2xl tracking-[1em] font-bold w-full h-16 rounded-2xl"
                                     value={formData.otp}
                                     onChange={handleChange}
+                                    autoComplete="one-time-code"
                                     required
                                     autoFocus
                                 />
@@ -202,15 +247,28 @@ const Auth = () => {
                                     type="submit"
                                     variant="primary"
                                     className="w-full py-4 text-lg rounded-2xl"
-                                    loading={isLoading}
+                                    isLoading={isLoading}
                                     icon={<FiCheckCircle />}
                                 >
-                                    Verify & Create Account
+                                    {isLogin ? 'Verify & Sign In' : 'Verify & Create Account'}
                                 </Button>
+                                
+                                <div className="text-sm text-gray-500">
+                                    Didn't receive the code?{' '}
+                                    <button
+                                        type="button"
+                                        onClick={handleResendOtp}
+                                        disabled={resendTimer > 0}
+                                        className={`font-bold transition-colors ${resendTimer > 0 ? 'text-gray-400 cursor-not-allowed' : 'text-primary-600 hover:text-primary-700 underline-offset-4 hover:underline'}`}
+                                    >
+                                        {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend OTP'}
+                                    </button>
+                                </div>
+
                                 <button
                                     type="button"
                                     onClick={() => setShowOtp(false)}
-                                    className="text-sm font-bold text-primary-600 hover:text-primary-700 transition-colors"
+                                    className="text-sm font-bold text-primary-600 hover:text-primary-700 transition-colors mt-2"
                                 >
                                     Go back to details
                                 </button>

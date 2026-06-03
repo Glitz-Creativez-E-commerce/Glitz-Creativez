@@ -401,21 +401,44 @@ const ProductModal = ({ isOpen, onClose, onSubmit, product = null, categories = 
                                                 <h3 className="text-lg font-bold text-gray-900">Product Sizes & Variants</h3>
                                                 <p className="text-sm text-gray-500">Optional. Add sizes (like XL) with specific prices and images.</p>
                                             </div>
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                size="sm"
-                                                onClick={() => setFormData(prev => ({ ...prev, sizes: [...prev.sizes, { name: '', price: '', image: '' }] }))}
-                                                icon={<FiPlus />}
-                                            >
-                                                Add Size
-                                            </Button>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        const bulkInput = window.prompt("Enter sizes (e.g., S, M, L) OR Size:Price (e.g., S:100, M:120):");
+                                                        if (bulkInput) {
+                                                            const newSizes = bulkInput.split(',').map(item => {
+                                                                const [name, price] = item.split(':').map(s => s.trim());
+                                                                return {
+                                                                    name: name,
+                                                                    price: price ? parseFloat(price) : formData.price,
+                                                                };
+                                                            }).filter(s => s.name);
+                                                            setFormData(prev => ({ ...prev, sizes: [...prev.sizes, ...newSizes] }));
+                                                        }
+                                                    }}
+                                                    icon={<FiPlus />}
+                                                >
+                                                    Bulk Add
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    onClick={() => setFormData(prev => ({ ...prev, sizes: [...prev.sizes, { name: '', price: '', image: '' }] }))}
+                                                    icon={<FiPlus />}
+                                                >
+                                                    Add Size
+                                                </Button>
+                                            </div>
                                         </div>
 
                                         {formData.sizes.length > 0 ? (
-                                            <div className="space-y-4 max-h-[45vh] overflow-y-auto pr-2 overflow-x-hidden">
+                                            <div className="space-y-3 max-h-[45vh] overflow-y-auto pr-2 overflow-x-hidden">
                                                 {formData.sizes.map((size, index) => (
-                                                    <div key={index} className="flex flex-col md:flex-row gap-4 p-4 border border-gray-100 bg-gray-50 rounded-xl relative">
+                                                    <div key={index} className="flex items-center gap-4 p-3 border border-gray-100 bg-gray-50 rounded-xl relative">
                                                         <button
                                                             type="button"
                                                             onClick={() => setFormData(prev => ({ ...prev, sizes: prev.sizes.filter((_, i) => i !== index) }))}
@@ -448,57 +471,6 @@ const ProductModal = ({ isOpen, onClose, onSubmit, product = null, categories = 
                                                                 }}
                                                                 required
                                                             />
-                                                        </div>
-
-                                                        {/* Variant Image */}
-                                                        <div className="w-full md:w-32 h-32 flex-shrink-0">
-                                                            <label className="block text-xs font-medium text-gray-700 mb-1">Variant Image</label>
-                                                            <div className="w-full h-[calc(100%-20px)] border-2 border-dashed border-gray-300 rounded-lg overflow-hidden relative group bg-white flex items-center justify-center">
-                                                                {size.image ? (
-                                                                    <>
-                                                                        <img src={size.image.startsWith('http') ? size.image : `http://localhost:5000${size.image}`} alt="Variant" className="w-full h-full object-cover" />
-                                                                        <div className="absolute inset-0 bg-black/40 hidden group-hover:flex items-center justify-center">
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => {
-                                                                                    const newSizes = [...formData.sizes];
-                                                                                    newSizes[index].image = '';
-                                                                                    setFormData(prev => ({ ...prev, sizes: newSizes }));
-                                                                                }}
-                                                                                className="text-white p-2"
-                                                                            >
-                                                                                <FiTrash2 size={20} />
-                                                                            </button>
-                                                                        </div>
-                                                                    </>
-                                                                ) : (
-                                                                    <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full text-gray-400 hover:text-primary-500 hover:bg-primary-50 transition-colors">
-                                                                        <FiImage size={24} />
-                                                                        <span className="text-[10px] mt-1 font-medium">Upload</span>
-                                                                        <input
-                                                                            type="file"
-                                                                            className="hidden"
-                                                                            onChange={async (e) => {
-                                                                                const file = e.target.files[0];
-                                                                                if (file) {
-                                                                                    const uploadData = new FormData();
-                                                                                    uploadData.append('image', file);
-                                                                                    try {
-                                                                                        const { data } = await axios.post('http://localhost:5000/api/upload', uploadData, {
-                                                                                            headers: { 'Content-Type': 'multipart/form-data' },
-                                                                                        });
-                                                                                        const newSizes = [...formData.sizes];
-                                                                                        newSizes[index].image = data.image;
-                                                                                        setFormData(prev => ({ ...prev, sizes: newSizes }));
-                                                                                    } catch (err) {
-                                                                                        console.error(err);
-                                                                                    }
-                                                                                }
-                                                                            }}
-                                                                        />
-                                                                    </label>
-                                                                )}
-                                                            </div>
                                                         </div>
                                                     </div>
                                                 ))}

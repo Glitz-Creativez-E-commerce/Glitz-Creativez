@@ -127,7 +127,7 @@ const Navbar = () => {
                                 className="flex items-center gap-2"
                                 onClick={handleLogoClick}
                             >
-                                <img src={logoImg} alt="GiftHaven" className="h-16 w-auto" />
+                                <img src={logoImg} alt="Glitz Creativez" className="h-16 w-auto" />
                             </motion.div>
                         </Link>
 
@@ -226,7 +226,7 @@ const Navbar = () => {
                         {/* Top Row: Centered Logo */}
                         <div className="flex items-center justify-center w-full">
                             <Link to="/" className="flex items-center gap-2">
-                                <img src={logoImg} alt="GiftHaven" className="h-12 w-auto" />
+                                <img src={logoImg} alt="Glitz Creativez" className="h-12 w-auto" />
                             </Link>
                         </div>
 
