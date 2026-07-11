@@ -22,6 +22,8 @@ import DashboardCharts from '../components/admin/DashboardCharts';
 import OrderDetailsModal from '../components/admin/OrderDetailsModal';
 import UserDetailsModal from '../components/admin/UserDetailsModal';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -84,17 +86,17 @@ const AdminDashboard = () => {
             const headers = getHeaders();
 
             // Fetch products
-            const productsRes = await fetch('http://localhost:5000/api/products/all', { headers });
+            const productsRes = await fetch(`${API_URL}/api/products/all`, { headers });
 
             // Fetch categories
-            const categoriesRes = await fetch('http://localhost:5000/api/categories', { headers });
+            const categoriesRes = await fetch(`${API_URL}/api/categories`, { headers });
 
             // Fetch orders
-            const ordersRes = await fetch('http://localhost:5000/api/orders/admin/all', { headers });
+            const ordersRes = await fetch(`${API_URL}/api/orders/admin/all`, { headers });
             if (ordersRes.status === 401) { dispatch(logout()); return; }
 
             // Fetch users
-            const usersRes = await fetch('http://localhost:5000/api/auth/admin/users', { headers });
+            const usersRes = await fetch(`${API_URL}/api/auth/admin/users`, { headers });
             if (usersRes.status === 401) { dispatch(logout()); return; }
 
             const productsData = await productsRes.json();
@@ -119,7 +121,7 @@ const AdminDashboard = () => {
     // --- Handlers: Products ---
     const handleCreateProduct = async (productData) => {
         try {
-            const res = await fetch('http://localhost:5000/api/products', {
+            const res = await fetch(`${API_URL}/api/products`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify(productData),
@@ -135,7 +137,7 @@ const AdminDashboard = () => {
 
     const handleUpdateProduct = async (productData) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/products/${editingProduct._id}`, {
+            const res = await fetch(`${API_URL}/api/products/${editingProduct._id}`, {
                 method: 'PUT',
                 headers: getHeaders(),
                 body: JSON.stringify(productData),
@@ -153,7 +155,7 @@ const AdminDashboard = () => {
     const handleDeleteProduct = async (id) => {
         if (!window.confirm('Are you sure you want to delete this product?')) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+            const res = await fetch(`${API_URL}/api/products/${id}`, {
                 method: 'DELETE',
                 headers: getHeaders(),
             });
@@ -173,7 +175,7 @@ const AdminDashboard = () => {
     const handleDeleteReview = async (productId, reviewId) => {
         if (!window.confirm('Are you sure you want to delete this review?')) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/products/${productId}/reviews/${reviewId}`, {
+            const res = await fetch(`${API_URL}/api/products/${productId}/reviews/${reviewId}`, {
                 method: 'DELETE',
                 headers: getHeaders(),
             });
@@ -190,7 +192,7 @@ const AdminDashboard = () => {
     // --- Handlers: Categories ---
     const handleCreateCategory = async (categoryData) => {
         try {
-            const res = await fetch('http://localhost:5000/api/categories', {
+            const res = await fetch(`${API_URL}/api/categories`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify(categoryData),
@@ -210,7 +212,7 @@ const AdminDashboard = () => {
 
     const handleUpdateCategory = async (categoryData) => {
         try {
-            const res = await fetch(`http://localhost:5000/api/categories/${editingCategory._id}`, {
+            const res = await fetch(`${API_URL}/api/categories/${editingCategory._id}`, {
                 method: 'PUT',
                 headers: getHeaders(),
                 body: JSON.stringify(categoryData),
@@ -232,7 +234,7 @@ const AdminDashboard = () => {
     const handleDeleteCategory = async (id) => {
         if (!window.confirm('Are you sure you want to delete this category?')) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/categories/${id}`, {
+            const res = await fetch(`${API_URL}/api/categories/${id}`, {
                 method: 'DELETE',
                 headers: getHeaders(),
             });
@@ -559,7 +561,7 @@ const AdminDashboard = () => {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <img
-                                                            src={product.images?.[0]?.startsWith('http') ? product.images[0] : `http://localhost:5000${product.images?.[0]}`}
+                                                            src={product.images?.[0]?.startsWith('http') ? product.images[0] : `${API_URL}${product.images?.[0]}`}
                                                             alt={product.name}
                                                             className="w-12 h-12 rounded-lg object-cover"
                                                         />
@@ -756,7 +758,7 @@ const AdminDashboard = () => {
                                                             <div className="h-12 w-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
                                                                 {cat.image ? (
                                                                     <img
-                                                                        src={cat.image?.startsWith('http') ? cat.image : `http://localhost:5000${cat.image}`}
+                                                                        src={cat.image?.startsWith('http') ? cat.image : `${API_URL}${cat.image}`}
                                                                         alt={cat.name}
                                                                         className="h-full w-full object-cover"
                                                                     />
@@ -839,7 +841,7 @@ const AdminDashboard = () => {
                                                             <td className="px-6 py-4 border border-gray-200">
                                                                 <div className="flex items-center gap-3">
                                                                     <img
-                                                                        src={review.productImage?.startsWith('http') ? review.productImage : `http://localhost:5000${review.productImage}`}
+                                                                        src={review.productImage?.startsWith('http') ? review.productImage : `${API_URL}${review.productImage}`}
                                                                         alt={review.productName}
                                                                         className="w-10 h-10 rounded object-cover"
                                                                     />

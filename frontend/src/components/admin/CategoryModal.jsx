@@ -109,7 +109,7 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, category = null, categories 
                                 {formData.image ? (
                                     <div className="relative w-full h-full">
                                         <img
-                                            src={formData.image?.startsWith('http') ? formData.image : `http://localhost:5000${formData.image}`}
+                                            src={formData.image?.startsWith('http') ? formData.image : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${formData.image}`}
                                             alt="Preview"
                                             className="w-full h-full object-cover"
                                             onError={(e) => e.target.style.display = 'none'}
@@ -138,7 +138,7 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, category = null, categories 
                                                     data.append('image', file);
                                                     try {
                                                         const config = { headers: { 'Content-Type': 'multipart/form-data' } };
-                                                        const res = await axios.post('http://localhost:5000/api/upload', data, config);
+                                                        const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/upload`, data, config);
                                                         setFormData(prev => ({ ...prev, image: res.data.image }));
                                                     } catch (error) {
                                                         console.error(error);

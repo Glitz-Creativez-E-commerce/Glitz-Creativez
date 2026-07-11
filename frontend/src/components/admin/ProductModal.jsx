@@ -64,10 +64,10 @@ const ProductModal = ({ isOpen, onClose, onSubmit, product = null, categories = 
         }
 
         if (formData.sizes.length > 0) {
-            const hasInvalidSize = formData.sizes.some(s => !s.name || !s.price || !s.image);
+            const hasInvalidSize = formData.sizes.some(s => !s.name || !s.price);
             if (hasInvalidSize) {
                 setActiveTab('sizes');
-                toast.error('All configured sizes must have a Name, a Price, and a Variant Image.');
+                toast.error('All configured sizes must have a Name and a Price.');
                 return;
             }
         }
@@ -331,16 +331,16 @@ const ProductModal = ({ isOpen, onClose, onSubmit, product = null, categories = 
                                                 {formData.image ? (
                                                     <div className="relative w-full h-full flex items-center justify-center bg-white group">
                                                         <img
-                                                            src={formData.image.startsWith('http') ? formData.image : `http://localhost:5000${formData.image}`}
+                                                            src={formData.image.startsWith('http') ? formData.image : `${import.meta.env.VITE_API_URL || 'http://localhost:5000'}${formData.image}`}
                                                             alt="Preview"
                                                             className="w-full h-full object-cover rounded-xl"
                                                             onError={(e) => e.target.style.display = 'none'}
                                                         />
                                                         <div className="absolute inset-0 flex items-center justify-center">
                                                             <button
-                                                                type="button"
-                                                                onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
-                                                                className="bg-white text-red-500 px-6 py-3 rounded-full font-medium shadow-md flex items-center gap-2 z-10"
+                                                                 type="button"
+                                                                 onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                                                                 className="bg-white text-red-500 px-6 py-3 rounded-full font-medium shadow-md flex items-center gap-2 z-10"
                                                             >
                                                                 <FiX size={18} /> Remove Image
                                                             </button>
@@ -370,7 +370,7 @@ const ProductModal = ({ isOpen, onClose, onSubmit, product = null, categories = 
                                                                                 'Content-Type': 'multipart/form-data',
                                                                             },
                                                                         };
-                                                                        const { data } = await axios.post('http://localhost:5000/api/upload', formData, config);
+                                                                        const { data } = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/upload`, formData, config);
                                                                         setFormData(prev => ({ ...prev, image: data.image }));
                                                                     } catch (error) {
                                                                         console.error(error);
