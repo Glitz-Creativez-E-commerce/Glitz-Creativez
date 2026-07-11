@@ -28,15 +28,18 @@ app.set('trust proxy', 1);
 // Middleware
 const allowedOrigins = ['http://localhost:5173', 'http://localhost:5176', 'http://localhost:5174', 'http://localhost:5175'];
 if (process.env.FRONTEND_URL) {
-    allowedOrigins.push(process.env.FRONTEND_URL);
+    const cleanOrigin = process.env.FRONTEND_URL.replace(/\/$/, '');
+    allowedOrigins.push(cleanOrigin);
+    allowedOrigins.push(`${cleanOrigin}/`);
 }
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Allow localhost, configured FRONTEND_URL, or any Vercel preview domain
+        if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            callback(new Error(`Not allowed by CORS: ${origin}`));
         }
     },
     credentials: true
@@ -96,6 +99,11 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
+});
+
+// Root route
+app.get('/', (req, res) => {
+    res.send('Ecommerce API is running...');
 });
 
 // Error handling
