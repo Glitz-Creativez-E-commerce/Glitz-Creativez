@@ -31,6 +31,17 @@ if (process.env.FRONTEND_URL) {
     const cleanOrigin = process.env.FRONTEND_URL.replace(/\/$/, '');
     allowedOrigins.push(cleanOrigin);
     allowedOrigins.push(`${cleanOrigin}/`);
+    
+    // Automatically whitelist both apex and www subdomains
+    if (!cleanOrigin.includes('://www.')) {
+        const wwwOrigin = cleanOrigin.replace('://', '://www.');
+        allowedOrigins.push(wwwOrigin);
+        allowedOrigins.push(`${wwwOrigin}/`);
+    } else {
+        const apexOrigin = cleanOrigin.replace('://www.', '://');
+        allowedOrigins.push(apexOrigin);
+        allowedOrigins.push(`${apexOrigin}/`);
+    }
 }
 
 app.use(cors({
