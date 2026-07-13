@@ -6,7 +6,7 @@ import { useGetFeaturedProductsQuery, useGetCategoriesQuery } from '../store/api
 import ProductSlider from '../components/products/ProductSlider';
 import Button from '../components/common/Button';
 
-const banners = [
+const defaultBanners = [
     {
         id: 1,
         image: '/images/banner1.png',
@@ -40,21 +40,48 @@ const banners = [
 ];
 
 const Home = () => {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [homeBanners, setHomeBanners] = useState(defaultBanners);
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
-        }, 5000);
-        return () => clearInterval(timer);
+        const fetchBanners = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/banners`);
+                const json = await res.json();
+                if (json.success && json.data && json.data.length > 0) {
+                    const defaultAccents = [
+                        'bg-gradient-to-r from-[#FF64B4] to-[#4cc9f0]',
+                        'bg-gradient-to-r from-[#4cc9f0] to-[#FF64B4]',
+                        'bg-gradient-to-r from-yellow-400 to-yellow-600'
+                    ];
+                    const mapped = json.data.map((b, idx) => ({
+                        ...b,
+                        accentText: defaultAccents[idx % defaultAccents.length]
+                    }));
+                    setHomeBanners(mapped);
+                }
+            } catch (err) {
+                console.error('Error fetching banners:', err);
+            }
+        };
+        fetchBanners();
     }, []);
 
+    useEffect(() => {
+        if (homeBanners.length === 0) return;
+        const timer = setInterval(() => {
+            setCurrentSlide((prev) => (prev === homeBanners.length - 1 ? 0 : prev + 1));
+        }, 5000);
+        return () => clearInterval(timer);
+    }, [homeBanners.length]);
+
     const nextSlide = () => {
-        setCurrentSlide((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
+        setCurrentSlide((prev) => (prev === homeBanners.length - 1 ? 0 : prev + 1));
     };
 
     const prevSlide = () => {
-        setCurrentSlide((prev) => (prev === 0 ? banners.length - 1 : prev - 1));
+        setCurrentSlide((prev) => (prev === 0 ? homeBanners.length - 1 : prev - 1));
     };
 
     const { data: popularData, isLoading: popularLoading } = useGetFeaturedProductsQuery(8);
@@ -68,55 +95,61 @@ const Home = () => {
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="relative rounded-2xl overflow-hidden shadow-2xl h-[400px] md:h-[500px] lg:h-[600px] group">
                         <AnimatePresence>
-                            <motion.div
-                                key={currentSlide}
-                                initial={{ opacity: 0, scale: 1.05 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0 }}
-                                transition={{ duration: 0.7 }}
-                                className="absolute inset-0"
-                            >
-                                <img src={banners[currentSlide].image} alt={banners[currentSlide].title} className="w-full h-full object-cover" />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/40 md:to-transparent"></div>
-                                <div className="absolute inset-0 flex flex-col justify-end md:justify-center p-8 md:p-16 w-full md:w-2/3 lg:w-1/2 z-10">
-                                    <motion.span 
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.3 }}
-                                        className={`inline-block px-4 py-1.5 text-white text-xs md:text-sm font-bold rounded-full mb-4 uppercase tracking-wider shadow-md w-fit ${banners[currentSlide].accentText}`}
-                                    >
-                                        {banners[currentSlide].subtitle}
-                                    </motion.span>
-                                    <motion.h2 
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.5 }}
-                                        className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-4 leading-tight drop-shadow-lg"
-                                    >
-                                        {banners[currentSlide].title}
-                                    </motion.h2>
-                                    <motion.p 
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.7 }}
-                                        className="text-gray-200 mb-8 text-base md:text-xl drop-shadow-md hidden sm:block"
-                                    >
-                                        {banners[currentSlide].description}
-                                    </motion.p>
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.9 }}
-                                    >
-                                        <Link to={banners[currentSlide].link}>
-                                            <button className="bg-white text-black hover:bg-gray-100 hover:-translate-y-1 transition-transform shadow-2xl rounded-full px-8 py-3 md:px-10 md:py-4 font-bold text-lg flex items-center group/btn">
-                                                {banners[currentSlide].buttonText}
-                                                <FiArrowRight className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                                            </button>
-                                        </Link>
-                                    </motion.div>
-                                </div>
-                            </motion.div>
+                            {homeBanners.length > 0 && (
+                                <motion.div
+                                    key={currentSlide}
+                                    initial={{ opacity: 0, scale: 1.05 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.7 }}
+                                    className="absolute inset-0"
+                                >
+                                    <img 
+                                        src={homeBanners[currentSlide].image?.startsWith('http') ? homeBanners[currentSlide].image : `${API_URL}${homeBanners[currentSlide].image}`} 
+                                        alt={homeBanners[currentSlide].title} 
+                                        className="w-full h-full object-cover" 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/40 md:to-transparent"></div>
+                                    <div className="absolute inset-0 flex flex-col justify-end md:justify-center p-8 md:p-16 w-full md:w-2/3 lg:w-1/2 z-10">
+                                        <motion.span 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.3 }}
+                                            className={`inline-block px-4 py-1.5 text-white text-xs md:text-sm font-bold rounded-full mb-4 uppercase tracking-wider shadow-md w-fit ${homeBanners[currentSlide].accentText}`}
+                                        >
+                                            {homeBanners[currentSlide].subtitle}
+                                        </motion.span>
+                                        <motion.h2 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.5 }}
+                                            className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-4 leading-tight drop-shadow-lg"
+                                        >
+                                            {homeBanners[currentSlide].title}
+                                        </motion.h2>
+                                        <motion.p 
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.7 }}
+                                            className="text-gray-200 mb-8 text-base md:text-xl drop-shadow-md hidden sm:block"
+                                        >
+                                            {homeBanners[currentSlide].description}
+                                        </motion.p>
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ delay: 0.9 }}
+                                        >
+                                            <Link to={homeBanners[currentSlide].link}>
+                                                <button className="bg-white text-black hover:bg-gray-100 hover:-translate-y-1 transition-transform shadow-2xl rounded-full px-8 py-3 md:px-10 md:py-4 font-bold text-lg flex items-center group/btn">
+                                                    {homeBanners[currentSlide].buttonText || 'Shop Now'}
+                                                    <FiArrowRight className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
+                                                </button>
+                                            </Link>
+                                        </motion.div>
+                                    </div>
+                                </motion.div>
+                            )}
                         </AnimatePresence>
 
                         {/* Navigation Arrows */}
@@ -135,7 +168,7 @@ const Home = () => {
 
                         {/* Pagination Dots */}
                         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-20">
-                            {banners.map((_, index) => (
+                            {homeBanners.map((_, index) => (
                                 <button
                                     key={index}
                                     onClick={() => setCurrentSlide(index)}

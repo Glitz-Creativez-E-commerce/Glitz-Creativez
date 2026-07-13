@@ -21,6 +21,7 @@ import AdminSettingsModal from '../components/admin/AdminSettingsModal';
 import DashboardCharts from '../components/admin/DashboardCharts';
 import OrderDetailsModal from '../components/admin/OrderDetailsModal';
 import UserDetailsModal from '../components/admin/UserDetailsModal';
+import BannerModal from '../components/admin/BannerModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -41,14 +42,17 @@ const AdminDashboard = () => {
     const [orders, setOrders] = useState([]);
     const [users, setUsers] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [banners, setBanners] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Modal State
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
     const [isAdminSettingsModalOpen, setIsAdminSettingsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [editingCategory, setEditingCategory] = useState(null);
+    const [editingBanner, setEditingBanner] = useState(null);
 
     // Order Modal State
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -99,15 +103,20 @@ const AdminDashboard = () => {
             const usersRes = await fetch(`${API_URL}/api/auth/admin/users`, { headers });
             if (usersRes.status === 401) { dispatch(logout()); return; }
 
+            // Fetch banners
+            const bannersRes = await fetch(`${API_URL}/api/banners?all=true`, { headers });
+
             const productsData = await productsRes.json();
             const categoriesData = await categoriesRes.json();
             const ordersData = await ordersRes.json(); // May throw if 401 and not JSON, but we checked status above
             const usersData = await usersRes.json();
+            const bannersData = await bannersRes.json();
 
             setProducts(productsData.data || []);
             setCategories(categoriesData.data || []);
             setOrders(ordersData.data || []);
             setUsers(usersData.data || []);
+            setBanners(bannersData.data || []);
 
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
@@ -251,6 +260,60 @@ const AdminDashboard = () => {
         setIsCategoryModalOpen(true);
     };
 
+    // --- Handlers: Banners ---
+    const handleCreateBanner = async (bannerData) => {
+        try {
+            const res = await fetch(`${API_URL}/api/banners`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(bannerData),
+            });
+            if (res.ok) {
+                fetchDashboardData();
+                setIsBannerModalOpen(false);
+            }
+        } catch (error) {
+            console.error('Error creating banner:', error);
+        }
+    };
+
+    const handleUpdateBanner = async (bannerData) => {
+        try {
+            const res = await fetch(`${API_URL}/api/banners/${editingBanner._id}`, {
+                method: 'PUT',
+                headers: getHeaders(),
+                body: JSON.stringify(bannerData),
+            });
+            if (res.ok) {
+                fetchDashboardData();
+                setIsBannerModalOpen(false);
+                setEditingBanner(null);
+            }
+        } catch (error) {
+            console.error('Error updating banner:', error);
+        }
+    };
+
+    const handleDeleteBanner = async (id) => {
+        if (!window.confirm('Are you sure you want to delete this banner?')) return;
+        try {
+            const res = await fetch(`${API_URL}/api/banners/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders(),
+            });
+            if (res.ok) {
+                fetchDashboardData();
+            }
+        } catch (error) {
+            console.error('Error deleting banner:', error);
+        }
+    };
+
+    const openBannerModal = (banner = null) => {
+        setEditingBanner(banner);
+        setIsBannerModalOpen(true);
+    };
+
     const handleLogout = () => {
         dispatch(logout());
         navigate('/auth');
@@ -290,6 +353,7 @@ const AdminDashboard = () => {
     const sidebarItems = [
         { id: 'overview', label: 'Overview', icon: <FiGrid size={20} /> },
         { id: 'analytics', label: 'Analytics', icon: <FiPieChart size={20} /> },
+        { id: 'banners', label: 'Banners', icon: <FiImage size={20} /> },
         { id: 'categories', label: 'Categories', icon: <FiTag size={20} /> },
         { id: 'products', label: 'Products', icon: <FiPackage size={20} /> },
         { id: 'orders', label: 'Orders', icon: <FiShoppingBag size={20} /> },
@@ -443,6 +507,9 @@ const AdminDashboard = () => {
                             <p className="text-sm text-gray-500">Manage your gift shop</p>
                         </div>
                         <div className="flex items-center gap-4">
+                            {activeTab === 'banners' && (
+                                <Button size="sm" icon={<FiPlus />} onClick={() => openBannerModal()}>Add Banner</Button>
+                            )}
                             {activeTab === 'products' && (
                                 <Button size="sm" icon={<FiPlus />} onClick={() => openProductModal()}>Add Product</Button>
                             )}
@@ -723,6 +790,86 @@ const AdminDashboard = () => {
                     )
                     }
 
+                    {/* Banners Tab */}
+                    {activeTab === 'banners' && (
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                            <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                                <h2 className="text-xl font-bold text-gray-900">Homepage Banners ({banners.length})</h2>
+                                <Button size="sm" icon={<FiPlus />} onClick={() => openBannerModal()}>Add Banner</Button>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-gray-50/50 border-b border-gray-100">
+                                        <tr>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Image</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Sequence</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Title</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Subtitle</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Link</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Status</th>
+                                            <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {banners.length === 0 ? (
+                                            <tr>
+                                                <td colSpan="7" className="px-6 py-12 text-center text-gray-500 border border-gray-200">
+                                                    <div className="flex flex-col items-center justify-center">
+                                                        <FiImage size={48} className="text-gray-300 mb-4" />
+                                                        <p>No banners found. Custom homepage carousel will display default banners.</p>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ) : (
+                                            banners.map((b) => (
+                                                <tr key={b._id} className="hover:bg-gray-50">
+                                                    <td className="px-6 py-4 border border-gray-200">
+                                                        <div className="h-12 w-28 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden">
+                                                            <img
+                                                                src={b.image?.startsWith('http') ? b.image : `${API_URL}${b.image}`}
+                                                                alt={b.title}
+                                                                className="h-full w-full object-cover"
+                                                            />
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 border border-gray-200">
+                                                        <span className="font-mono text-gray-500 bg-gray-100 px-2 py-1 rounded text-sm">
+                                                            {b.sequence || 0}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 font-medium text-gray-900 border border-gray-200">{b.title}</td>
+                                                    <td className="px-6 py-4 text-gray-600 border border-gray-200">{b.subtitle || '-'}</td>
+                                                    <td className="px-6 py-4 text-gray-600 border border-gray-200 text-sm font-mono">{b.link}</td>
+                                                    <td className="px-6 py-4 border border-gray-200">
+                                                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${b.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                            {b.isActive ? 'Active' : 'Inactive'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right border border-gray-200">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <button
+                                                                onClick={() => openBannerModal(b)}
+                                                                className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-500"
+                                                            >
+                                                                <FiEdit2 size={18} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDeleteBanner(b._id)}
+                                                                className="p-2 rounded-lg hover:bg-red-50 text-gray-500 hover:text-red-500"
+                                                            >
+                                                                <FiTrash2 size={18} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Categories Tab */}
                     {
                         activeTab === 'categories' && (
@@ -979,6 +1126,17 @@ const AdminDashboard = () => {
                 onSubmit={editingCategory ? handleUpdateCategory : handleCreateCategory}
                 category={editingCategory}
                 categories={categories}
+            />
+
+            <BannerModal
+                isOpen={isBannerModalOpen}
+                onClose={() => {
+                    setIsBannerModalOpen(false);
+                    setEditingBanner(null);
+                }}
+                onSubmit={editingBanner ? handleUpdateBanner : handleCreateBanner}
+                banner={editingBanner}
+                banners={banners}
             />
 
             <AdminSettingsModal
