@@ -14,7 +14,7 @@ const CategoryCard = ({ category, index = 0 }) => {
                     <div className="relative w-full aspect-square overflow-hidden rounded-full border-2 border-gray-200 group-hover:border-gray-300 transition-all duration-300 bg-gray-50 flex items-center justify-center">
                         {category.image && !imageError ? (
                             <motion.img
-                                src={category.image}
+                                src={category.image.startsWith('http') ? category.image : `http://localhost:5000${category.image}`}
                                 alt="" // Empty alt to prevent text showing on error
                                 className="w-full h-full object-cover"
                                 whileHover={{ scale: 1.1 }}

@@ -195,8 +195,14 @@ const Products = () => {
                         <BackButton onClick={() => navigate('/')} />
                         <Breadcrumbs items={breadcrumbs} />
                     </div>
-                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-900 mt-4 sm:mt-0">
-                        {search ? `Results for "${search}"` : selectedCategory?.name || 'All Products'}
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-black mt-4 sm:mt-0 tracking-tight">
+                        {search ? (
+                            <span className="text-gray-900">Results for "{search}"</span>
+                        ) : selectedCategory ? (
+                            <span className="text-gray-900">{selectedCategory.name}</span>
+                        ) : (
+                            <><span className="text-[#FF64B4]">All</span> <span className="text-[#4cc9f0]">Products</span></>
+                        )}
                     </h1>
                 </motion.div>
 
@@ -229,7 +235,7 @@ const Products = () => {
                                 className="flex flex-col items-center px-3 py-1.5 focus:outline-none"
                             >
                                 <span className="text-[11px] font-bold text-gray-800 uppercase tracking-widest leading-tight">Filter By Price</span>
-                                <div className="flex items-center gap-1 mt-0.5 text-sm font-medium text-green-700">
+                                <div className="flex items-center gap-1 mt-0.5 text-sm font-bold text-primary-600">
                                     <span className="truncate">
                                         {filters.priceRange === 'below-500' ? 'Below ₹500' :
                                             filters.priceRange === '500-1000' ? '₹500 - ₹1,000' :
@@ -241,12 +247,14 @@ const Products = () => {
                             </button>
                             <AnimatePresence>
                                 {isSortDropdownOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: 5 }}
-                                        className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden"
-                                    >
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsSortDropdownOpen(false)} />
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 5 }}
+                                            className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden"
+                                        >
                                         {[
                                             { value: '', label: 'All Products', min: '', max: '' },
                                             { value: 'below-500', label: 'Below ₹500', min: '', max: '500' },
@@ -265,12 +273,13 @@ const Products = () => {
                                                     }));
                                                     setIsSortDropdownOpen(false);
                                                 }}
-                                                className={`w-full text-left px-4 py-2 text-sm transition-colors ${filters.priceRange === option.value ? 'bg-gray-50 text-green-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}
+                                                className={`w-full text-left px-4 py-2 text-sm transition-colors ${filters.priceRange === option.value ? 'bg-[#FF64B4]/10 text-[#FF64B4] font-bold' : 'text-gray-700 hover:bg-gray-50'}`}
                                             >
                                                 {option.label}
                                             </button>
                                         ))}
-                                    </motion.div>
+                                        </motion.div>
+                                    </>
                                 )}
                             </AnimatePresence>
                         </div>
@@ -284,7 +293,7 @@ const Products = () => {
                                 className="flex flex-col items-center px-3 py-1.5 focus:outline-none"
                             >
                                 <span className="text-[11px] font-bold text-gray-800 uppercase tracking-widest leading-tight">Sort By</span>
-                                <div className="flex items-center gap-1 mt-0.5 text-sm font-medium text-green-700">
+                                <div className="flex items-center gap-1 mt-0.5 text-sm font-bold text-[#4cc9f0]">
                                     <span>
                                         {sortOptions.find(o => o.value === filters.sort)?.label || 'Popularity'}
                                     </span>
@@ -293,12 +302,14 @@ const Products = () => {
                             </button>
                             <AnimatePresence>
                                 {isSortByOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: 5 }}
-                                        className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden"
-                                    >
+                                    <>
+                                        <div className="fixed inset-0 z-40" onClick={() => setIsSortByOpen(false)} />
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 5 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: 5 }}
+                                            className="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden"
+                                        >
                                         {[
                                             { value: 'bestselling', label: 'Popularity' },
                                             ...sortOptions.filter(o => o.value !== 'bestselling')
@@ -309,12 +320,13 @@ const Products = () => {
                                                     handleFilterChange('sort', option.value);
                                                     setIsSortByOpen(false);
                                                 }}
-                                                className={`w-full text-left px-4 py-2 text-sm transition-colors ${filters.sort === option.value ? 'bg-gray-50 text-green-700 font-medium' : 'text-gray-700 hover:bg-gray-50'}`}
+                                                className={`w-full text-left px-4 py-2 text-sm transition-colors ${filters.sort === option.value ? 'bg-[#4cc9f0]/10 text-[#4cc9f0] font-bold' : 'text-gray-700 hover:bg-gray-50'}`}
                                             >
                                                 {option.label}
                                             </button>
                                         ))}
-                                    </motion.div>
+                                        </motion.div>
+                                    </>
                                 )}
                             </AnimatePresence>
                         </div>

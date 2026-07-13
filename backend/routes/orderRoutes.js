@@ -9,8 +9,8 @@ import {
     getOrders,
 } from '../controllers/orderController.js';
 import {
-    createRazorpayOrder,
-    verifyRazorpayPayment
+    createCashfreeOrder,
+    verifyCashfreePayment
 } from '../controllers/paymentController.js';
 import { protect, admin } from '../middleware/authMiddleware.js';
 
@@ -21,8 +21,8 @@ router.use(protect); // All order routes require authentication
 router.post('/', createOrder);
 router.get('/', getMyOrders);
 router.get('/:id', getOrderById);
-router.post('/:id/razorpay', createRazorpayOrder);
-router.post('/:id/verify-payment', verifyRazorpayPayment);
+router.post('/:id/cashfree', createCashfreeOrder);
+router.post('/:id/verify-payment', verifyCashfreePayment);
 router.put('/:id/pay', updateOrderToPaid);
 router.put('/:id/status', admin, updateOrderStatus);
 router.put('/:id/cancel', cancelOrder);

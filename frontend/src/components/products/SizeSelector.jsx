@@ -184,28 +184,7 @@ const SizeSelector = ({ sizes, selectedSize, onSelectSize }) => {
                 </div>
             )}
             
-            {/* Selected Details Footer */}
-            {selectedSize && (
-                <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-6 p-4 w-full bg-primary-50/30 rounded-2xl border border-primary-100/50 flex items-center justify-between"
-                >
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-white shadow-sm flex items-center justify-center text-primary-500">
-                            <FiCheck className="stroke-[3]" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Configuration</p>
-                            <p className="text-sm font-bold text-gray-900">{selectedSize.name}</p>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Price Variant</p>
-                        <p className="text-lg font-black text-primary-600 tracking-tight">₹{selectedSize.price.toFixed(2)}</p>
-                    </div>
-                </motion.div>
-            )}
+
         </div>
     );
 };

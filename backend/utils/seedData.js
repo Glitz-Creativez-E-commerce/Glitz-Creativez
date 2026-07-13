@@ -1,8 +1,12 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import dns from 'dns';
 import User from '../models/User.js';
 import Category from '../models/Category.js';
 import Product from '../models/Product.js';
+
+// Resolve DNS SRV lookup issues for MongoDB Atlas clusters on Windows/local environment
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 dotenv.config();
 
@@ -614,13 +618,13 @@ const seedDatabase = async () => {
         // Create admin user
         const admin = await User.create({
             name: 'Admin User',
-            email: 'admin@example.com',
+            email: 'admin@gmail.com',
             phone: '1111111111',
             countryCode: '+91',
-            password: 'admin123',
+            password: 'glitz@4716',
             isAdmin: true
         });
-        console.log('👤 Admin user created (Phone: 1111111111 / Pass: admin123)');
+        console.log('👤 Admin user created (Email: admin@gmail.com / Pass: glitz@4716)');
 
         // Create test user
         await User.create({
@@ -659,7 +663,7 @@ const seedDatabase = async () => {
 
         console.log('\n✨ Database seeded successfully!');
         console.log('\n📋 Login Credentials:');
-        console.log('   Admin: Phone: 1111111111 / Pass: admin123');
+        console.log('   Admin: Email: admin@gmail.com / Pass: glitz@4716');
         console.log('   User:  Phone: 9876543210 / Pass: test123');
 
         process.exit(0);

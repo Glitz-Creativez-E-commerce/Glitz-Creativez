@@ -45,16 +45,24 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: {
         type: String,
         required: true,
-        enum: ['card', 'razorpay', 'cod'],
+        enum: ['card', 'razorpay', 'cashfree', 'cod'],
         default: 'card'
     },
+    paymentStatus: {
+        type: String,
+        required: true,
+        enum: ['Pending', 'Paid', 'Failed'],
+        default: 'Pending'
+    },
+    razorpayOrderId: { type: String },
+    razorpayPaymentId: { type: String },
+    cashfreeOrderId: { type: String },
+    cashfreePaymentSessionId: { type: String },
     paymentResult: {
         id: String,
         status: String,
         updateTime: String,
         emailAddress: String,
-        razorpay_order_id: String,
-        razorpay_payment_id: String,
         razorpay_signature: String
     },
     itemsPrice: {
@@ -96,8 +104,12 @@ const orderSchema = new mongoose.Schema({
     status: {
         type: String,
         required: true,
-        enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
-        default: 'pending'
+        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+        default: 'Pending'
+    },
+    orderTrackingStatus: {
+        type: String,
+        default: 'Order Placed'
     },
     trackingNumber: {
         type: String,
@@ -107,16 +119,22 @@ const orderSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Generate order number
+// Generate order and invoice number
 orderSchema.pre('save', async function () {
     if (this.isNew) {
         const count = await mongoose.model('Order').countDocuments();
+        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
         this.orderNumber = `ORD-${Date.now()}-${count + 1}`;
+        this.invoiceNumber = `INV-${dateStr}-${count + 1}`;
     }
 });
 
 orderSchema.add({
     orderNumber: {
+        type: String,
+        unique: true
+    },
+    invoiceNumber: {
         type: String,
         unique: true
     }

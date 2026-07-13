@@ -7,8 +7,8 @@ import { selectCartItems, selectCartTotal, clearCart } from '../store/slices/car
 import { selectCurrentUser, selectIsAuthenticated } from '../store/slices/authSlice';
 import {
     useCreateOrderMutation,
-    useCreateRazorpayOrderMutation,
-    useVerifyRazorpayPaymentMutation
+    useCreateCashfreeOrderMutation,
+    useVerifyCashfreePaymentMutation
 } from '../store/api/ordersApi';
 import { addToast } from '../store/slices/uiSlice';
 import Button from '../components/common/Button';
@@ -32,10 +32,10 @@ const Checkout = () => {
     }, [isAuthenticated, navigate]);
 
     const [createOrder, { isLoading: isCreatingOrder }] = useCreateOrderMutation();
-    const [createRazorpayOrder, { isLoading: isCreatingRazorpay }] = useCreateRazorpayOrderMutation();
-    const [verifyRazorpayPayment, { isLoading: isVerifying }] = useVerifyRazorpayPaymentMutation();
+    const [createCashfreeOrder, { isLoading: isCreatingCashfree }] = useCreateCashfreeOrderMutation();
+    const [verifyCashfreePayment, { isLoading: isVerifying }] = useVerifyCashfreePaymentMutation();
 
-    const isLoading = isCreatingOrder || isCreatingRazorpay || isVerifying;
+    const isLoading = isCreatingOrder || isCreatingCashfree || isVerifying;
 
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -63,65 +63,41 @@ const Checkout = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const loadRazorpayScript = () => {
+    const loadCashfreeScript = () => {
         return new Promise((resolve) => {
+            if (window.Cashfree) {
+                resolve(true);
+                return;
+            }
             const script = document.createElement('script');
-            script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+            script.src = 'https://sdk.cashfree.com/js/v3/cashfree.js';
             script.onload = () => resolve(true);
             script.onerror = () => resolve(false);
             document.body.appendChild(script);
         });
     };
 
-    const handleRazorpayPayment = async (orderId) => {
-        const res = await loadRazorpayScript();
+    const handleCashfreePayment = async (orderId) => {
+        const res = await loadCashfreeScript();
         if (!res) {
-            dispatch(addToast({ type: 'error', message: 'Razorpay UI failed to load' }));
+            dispatch(addToast({ type: 'error', message: 'Cashfree SDK failed to load' }));
             return;
         }
 
         try {
-            // Get Razorpay Order ID from backend
-            const razorpayOrder = await createRazorpayOrder(orderId).unwrap();
+            // Get Cashfree Payment Session ID from backend
+            const cashfreeOrder = await createCashfreeOrder(orderId).unwrap();
+            const paymentSessionId = cashfreeOrder.payment_session_id;
 
-            const options = {
-                key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-                amount: razorpayOrder.amount,
-                currency: razorpayOrder.currency,
-                name: 'Glitz Creativez',
-                description: 'Order Payment',
-                order_id: razorpayOrder.id,
-                prefill: {
-                    name: `${formData.firstName} ${formData.lastName}`,
-                    email: formData.email,
-                    contact: formData.phone,
-                },
-                handler: async function (response) {
-                    try {
-                        await verifyRazorpayPayment({
-                            id: orderId,
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                        }).unwrap();
-
-                        dispatch(clearCart());
-                        dispatch(addToast({ type: 'success', message: 'Payment successful! Order placed.' }));
-                        navigate(`/order-success/${orderId}`);
-                    } catch (err) {
-                        dispatch(addToast({ type: 'error', message: 'Payment verification failed' }));
-                        navigate(`/orders`);
-                    }
-                },
-                theme: { color: '#f59e0b' },
-            };
-
-            const rzp = new window.Razorpay(options);
-            rzp.on('payment.failed', function (response) {
-                dispatch(addToast({ type: 'error', message: 'Payment failed! Order created as pending.' }));
-                navigate(`/orders`);
+            const cashfree = window.Cashfree({
+                mode: import.meta.env.VITE_CASHFREE_ENV === 'production' ? 'production' : 'sandbox',
             });
-            rzp.open();
+
+            // Initialize Modal Checkout
+            cashfree.checkout({
+                paymentSessionId: paymentSessionId,
+                redirectTarget: '_modal',
+            });
 
         } catch (error) {
             dispatch(addToast({ type: 'error', message: 'Failed to initialize payment' }));
@@ -157,9 +133,9 @@ const Checkout = () => {
 
             const result = await createOrder(orderData).unwrap();
 
-            if (formData.paymentMethod === 'razorpay') {
-                // Initialize Razorpay UI
-                await handleRazorpayPayment(result.data._id);
+            if (formData.paymentMethod === 'cashfree') {
+                // Initialize Cashfree UI
+                await handleCashfreePayment(result.data._id);
             } else {
                 dispatch(clearCart());
                 dispatch(addToast({
@@ -329,7 +305,7 @@ const Checkout = () => {
                                 <div className="space-y-4">
                                     {[
                                         { id: 'card', label: 'Credit/Debit Card', icon: '💳' },
-                                        { id: 'razorpay', label: 'Razorpay', icon: '💳' },
+                                        { id: 'cashfree', label: 'Cashfree Payments', icon: '💳' },
                                         { id: 'cod', label: 'Cash on Delivery', icon: '💵' },
                                     ].map(method => (
                                         <label
@@ -411,7 +387,7 @@ const Checkout = () => {
                                         <h3 className="text-gray-900 font-semibold mb-3">Payment Method</h3>
                                         <p className="text-gray-600">
                                             {formData.paymentMethod === 'card' && '💳 Credit/Debit Card'}
-                                            {formData.paymentMethod === 'razorpay' && '💳 Razorpay'}
+                                            {formData.paymentMethod === 'cashfree' && '💳 Cashfree'}
                                             {formData.paymentMethod === 'cod' && '💵 Cash on Delivery'}
                                         </p>
                                     </div>

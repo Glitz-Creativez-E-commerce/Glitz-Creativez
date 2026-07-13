@@ -257,7 +257,7 @@ const ProductDetail = () => {
                         className="space-y-4 lg:col-span-5 max-w-xl mx-auto w-full"
                     >
                         {/* Main Image */}
-                        <div className="relative aspect-square rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-card">
+                        <div className="relative aspect-square rounded-[32px] overflow-hidden bg-white/50 backdrop-blur-3xl border border-white/60 shadow-[0_20px_40px_rgb(0,0,0,0.06)]">
                             <AnimatePresence mode="wait">
                                 {(() => {
                                     const currentDisplayImage = product.images?.[selectedImage];
@@ -325,7 +325,7 @@ const ProductDetail = () => {
 
                         {/* Title & Rating */}
                         <div className="space-y-2 mb-4">
-                            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight">
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 leading-tight tracking-tight">
                                 {product.name}
                             </h1>
 
@@ -345,7 +345,7 @@ const ProductDetail = () => {
 
                         {/* Price */}
                         <div className="flex flex-wrap items-end gap-2 mb-4">
-                            <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+                            <span className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
                                 ₹{selectedSize ? selectedSize.price?.toFixed(2) : product.price?.toFixed(2)}
                             </span>
                             {product.originalPrice > product.price && (
@@ -405,28 +405,25 @@ const ProductDetail = () => {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-row gap-3">
-                            <Button
-                                variant="ghost"
-                                size="lg"
-                                onClick={handleWishlist}
-                                className={`w-[40%] flex justify-center border transition-all duration-300 ${isInWishlist
-                                    ? 'bg-[#FFF1F2] text-rose-500 border-rose-100 hover:bg-[#FFF1F2] hover:brightness-95 hover:border-rose-200'
-                                    : 'bg-white !text-gray-900 !border-gray-200 hover:bg-gray-50 hover:!border-gray-300'
-                                    }`}
-                                icon={<FiHeart className={isInWishlist ? "fill-current" : ""} />}
-                            >
-                                {isInWishlist ? 'Wishlisted' : 'Wishlist'}
-                            </Button>
+                        <div className="flex items-center gap-4">
                             <Button
                                 size="lg"
-                                className="w-[60%] flex justify-center !bg-[#ffc107] !text-black hover:!bg-[#ffca28] border-none shadow-sm"
+                                className="flex-1 flex justify-center py-4 text-lg !bg-gradient-to-r from-primary-500 to-primary-600 !text-white border-none shadow-[0_8px_20px_rgba(244,63,94,0.3)] hover:shadow-[0_12px_25px_rgba(244,63,94,0.4)] hover:-translate-y-1 transition-all duration-300 font-bold"
                                 onClick={handleAddToCart}
                                 disabled={product.stock === 0}
                                 icon={<FiShoppingCart />}
                             >
                                 Add to Cart
                             </Button>
+                            <button
+                                onClick={handleWishlist}
+                                className={`flex-shrink-0 w-[58px] h-[58px] flex items-center justify-center rounded-2xl border-2 transition-all duration-300 hover:-translate-y-1 ${isInWishlist
+                                    ? 'bg-[#FFF1F2] text-rose-500 border-rose-100 shadow-[0_8px_20px_rgba(244,63,94,0.15)]'
+                                    : 'bg-white text-gray-400 border-gray-200 hover:border-rose-200 hover:text-rose-400 hover:shadow-md'
+                                    }`}
+                            >
+                                <FiHeart size={24} className={isInWishlist ? "fill-current" : ""} />
+                            </button>
                         </div>
 
                         {/* WhatsApp Urgent Order Link */}
@@ -453,8 +450,8 @@ const ProductDetail = () => {
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                 {features.map((feature, index) => (
-                                    <div className="flex items-center gap-4 p-6 rounded-2xl bg-white border border-gray-200 hover:border-primary-300 hover:shadow-card transition-all duration-300">
-                                        <div className="p-3 rounded-xl bg-gradient-to-br from-primary-400 to-primary-500 text-white shadow-gold">
+                                    <div className="flex items-center gap-4 p-6 rounded-2xl bg-white border border-gray-200 hover:border-[#4cc9f0]/40 hover:shadow-card transition-all duration-300">
+                                        <div className="p-3 rounded-xl bg-gradient-to-br from-[#4cc9f0]/80 to-[#4cc9f0] text-white shadow-[0_8px_16px_rgba(76,201,240,0.25)]">
                                             {feature.icon}
                                         </div>
                                         <div>
@@ -504,7 +501,7 @@ const ProductDetail = () => {
                                         <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Ratings <FiStar className="inline mb-1" /></h3>
                                         <div className="flex items-baseline gap-2 mb-1">
                                             <span className="text-5xl font-bold text-gray-900">{product.rating?.toFixed(1) || '0.0'}</span>
-                                            <FiStar className="text-emerald-500 fill-emerald-500" size={28} />
+                                            <FiStar className="text-yellow-400 fill-yellow-400" size={28} />
                                         </div>
                                         <p className="text-gray-500 text-sm">{product.numReviews || 0} Verified Buyers</p>
                                     </div>
@@ -522,8 +519,7 @@ const ProductDetail = () => {
                                                     </div>
                                                     <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                                                         <div
-                                                            className={`h-full rounded-full transition-all duration-500 ${star >= 4 ? 'bg-green-500' : star >= 2 ? 'bg-yellow-400' : 'bg-red-500'
-                                                                }`}
+                                                            className="h-full rounded-full transition-all duration-500 bg-yellow-400"
                                                             style={{ width: `${percentage}%` }}
                                                         />
                                                     </div>
@@ -545,6 +541,7 @@ const ProductDetail = () => {
                                     {!showReviewForm && !hasUserReviewed && (
                                         <Button
                                             variant="outline"
+                                            className="!border-yellow-400 !text-yellow-600 hover:!bg-yellow-50"
                                             onClick={() => {
                                                 if (!isAuthenticated) {
                                                     dispatch(addToast({

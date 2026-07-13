@@ -186,9 +186,16 @@ export const adminLogin = asyncHandler(async (req, res) => {
     const adminEmail = (process.env.ADMIN_EMAIL || 'admin@example.com').trim();
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
-    if (email.toLowerCase() === adminEmail.toLowerCase() && password === adminPassword) {
+    // 1. Check if it matches the environment variable hardcoded override first
+    const isEnvMatch = email.toLowerCase() === adminEmail.toLowerCase() && password === adminPassword;
+
+    let adminUser = null;
+    let isAuthenticated = false;
+
+    if (isEnvMatch) {
+        isAuthenticated = true;
         // Find or create admin user in DB to attach an ID to the JWT
-        let adminUser = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$', 'i') } });
+        adminUser = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$', 'i') } });
 
         if (!adminUser) {
             adminUser = await User.create({
@@ -201,7 +208,19 @@ export const adminLogin = asyncHandler(async (req, res) => {
             adminUser.isAdmin = true;
             await adminUser.save();
         }
+    } else {
+        // 2. Fallback: Check if there is an Admin User in the DB with this email and matching hashed password
+        adminUser = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$', 'i') } });
+        
+        if (adminUser && adminUser.isAdmin && adminUser.password) {
+            const isPasswordMatch = await bcrypt.compare(password, adminUser.password);
+            if (isPasswordMatch) {
+                isAuthenticated = true;
+            }
+        }
+    }
 
+    if (isAuthenticated && adminUser) {
         res.json({
             success: true,
             data: {

@@ -345,26 +345,7 @@ const Profile = () => {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                        {/* Welcome Header */}
-                        <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="bg-gradient-to-r from-primary-500 to-primary-600 rounded-[2rem] p-8 mb-8 shadow-xl shadow-primary-100 flex items-center gap-6 relative overflow-hidden"
-                        >
-                            {/* Decorative Elements */}
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl transition-transform group-hover:scale-110 duration-700" />
-                            <div className="absolute bottom-0 left-0 w-48 h-48 bg-primary-400/20 rounded-full -ml-12 -mb-12 blur-2xl" />
 
-                            <div className="relative z-10 w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 shadow-inner box-border">
-                                <FiUser size={30} className="sm:size-32" />
-                            </div>
-                            <div className="relative z-10 text-white">
-                                <h1 className="text-xl sm:text-2xl font-bold leading-tight flex items-center gap-2">
-                                    Hii, {profile?.name || 'User'} <span className="animate-bounce">👋</span>
-                                </h1>
-                                <p className="text-primary-50/80 text-sm sm:text-base font-medium mt-1">Manage your account and view your activities</p>
-                            </div>
-                        </motion.div>
 
                         {/* Tab Content */}
                         <AnimatePresence mode="wait">
@@ -845,7 +826,7 @@ const Profile = () => {
                                             Danger Zone
                                         </h2>
                                         <p className="text-gray-500 text-sm mb-4">Permanently delete your account and all associated data</p>
-                                        <Button variant="danger" size="sm">Delete Account</Button>
+                                        <Button className="!bg-red-600 !text-white hover:!bg-red-700 !shadow-none" size="sm">Delete Account</Button>
                                     </div>
                                 </motion.div>
                             )}

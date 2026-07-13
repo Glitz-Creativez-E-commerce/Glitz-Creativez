@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Confetti from 'react-confetti';
 import { FiCheck, FiPackage, FiTruck, FiHome, FiShoppingBag } from 'react-icons/fi';
-import { useGetOrderByIdQuery } from '../store/api/ordersApi';
+import { useGetOrderByIdQuery, useVerifyCashfreePaymentMutation } from '../store/api/ordersApi';
 import Loader from '../components/common/Loader';
 import Button from '../components/common/Button';
 import BackButton from '../components/common/BackButton';
@@ -19,6 +19,15 @@ const OrderSuccess = () => {
 
     const { data: orderData, isLoading } = useGetOrderByIdQuery(orderId);
     const order = orderData?.data;
+    const [verifyCashfreePayment] = useVerifyCashfreePaymentMutation();
+
+    useEffect(() => {
+        if (order && order.paymentMethod === 'cashfree' && !order.isPaid) {
+            verifyCashfreePayment(orderId)
+                .unwrap()
+                .catch((err) => console.error('Cashfree Verification failed:', err));
+        }
+    }, [order, orderId, verifyCashfreePayment]);
 
     useEffect(() => {
         const handleResize = () => {

@@ -23,6 +23,10 @@ import Orders from './pages/Orders';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminAuth from './pages/AdminAuth';
 import AuthSuccess from './pages/AuthSuccess';
+import Contact from './pages/Contact';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
+import Refund from './pages/Refund';
 
 // Scroll to top on route change
 import { useEffect } from 'react';
@@ -66,6 +70,10 @@ function AppContent() {
           <Route path="/orders" element={<Orders />} />
           <Route path="/admin/auth" element={<AdminAuth />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/refund" element={<Refund />} />
         </Routes>
       </main>
       {!isAdminPage && !isAuthPage && !isProductsPage && <BottomNav />}
