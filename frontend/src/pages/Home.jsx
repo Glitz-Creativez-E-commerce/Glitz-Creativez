@@ -402,7 +402,12 @@ const Home = () => {
                                                     src={imageUrl}
                                                     alt={category.name}
                                                     className="w-full h-full object-cover rounded-full transition-transform duration-500 ease-out group-hover:scale-105"
-                                                    onError={(e) => { e.target.onerror = null; e.target.src = '/images/placeholder.png'; }}
+                                                    onError={(e) => {
+                                                        const fallback = 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=150&q=80';
+                                                        if (e.target.src !== fallback) {
+                                                            e.target.src = fallback;
+                                                        }
+                                                    }}
                                                 />
                                             </div>
                                             <span className="text-xs md:text-sm font-bold text-gray-700 mt-2 transition-colors duration-300 group-hover:text-[#FF64B4] whitespace-nowrap">
