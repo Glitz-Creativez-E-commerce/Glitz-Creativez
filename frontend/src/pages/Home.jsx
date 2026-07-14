@@ -413,6 +413,83 @@ const Home = () => {
                 </div>
             </section>
 
+            {/* Subcategory Showcase Section (Winni-style) */}
+            <section className="py-12 bg-white border-b border-gray-100">
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex flex-row items-end justify-between mb-8 pb-4 border-b border-gray-100">
+                        <div className="text-left">
+                            <h2 className="text-2xl md:text-3xl font-black text-gray-800 tracking-tight">
+                                Personalised Gifts
+                            </h2>
+                            <p className="text-gray-500 text-xs md:text-sm mt-1">Thoughtful creations crafted to make them smile</p>
+                        </div>
+                        <Link 
+                            to="/products?category=6a5297fccb0f753bdffcae71"
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-800 text-[10px] md:text-xs font-bold px-4 md:px-5 py-2.5 rounded transition-colors duration-300 tracking-wider uppercase"
+                        >
+                            View All
+                        </Link>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                        {[
+                            {
+                                title: 'Photo Caricatures',
+                                price: '₹ 499',
+                                link: '/products?search=caricature',
+                                bg: 'bg-[#FFECF6]', // Soft pink
+                                image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=300&q=80' // Beautiful art/painting/gifts
+                            },
+                            {
+                                title: 'Custom Mugs',
+                                price: '₹ 299',
+                                link: '/products?search=mug',
+                                bg: 'bg-[#EBFDF3]', // Soft green
+                                image: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=300&q=80' // Premium mug
+                            },
+                            {
+                                title: 'Engraved Plaques',
+                                price: '₹ 599',
+                                link: '/products?search=plaque',
+                                bg: 'bg-[#FFF9EC]', // Soft yellow
+                                image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=300&q=80' // Custom wooden plaque
+                            },
+                            {
+                                title: 'Custom Cushions',
+                                price: '₹ 399',
+                                link: '/products?search=pillow',
+                                bg: 'bg-[#EEF7FF]', // Soft blue
+                                image: 'https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=300&q=80' // Custom cushion
+                            }
+                        ].map((item, idx) => (
+                            <Link 
+                                key={idx}
+                                to={item.link}
+                                className={`group flex flex-col justify-between rounded-3xl overflow-hidden ${item.bg} border border-gray-100/50 shadow-soft transition-all duration-300 hover:shadow-lg`}
+                            >
+                                <div className="flex-1 flex items-center justify-center p-6 relative overflow-hidden min-h-[140px] md:min-h-[180px]">
+                                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-white p-1.5 flex items-center justify-center shadow-inner transition-transform duration-500 group-hover:scale-105">
+                                        <img 
+                                            src={item.image} 
+                                            alt={item.title}
+                                            className="w-full h-full object-cover rounded-full"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="bg-white py-3 px-4 text-center border-t border-gray-50 flex flex-col items-center justify-center">
+                                    <h4 className="font-extrabold text-gray-800 text-xs md:text-sm tracking-tight line-clamp-1">
+                                        {item.title}
+                                    </h4>
+                                    <span className="text-gray-400 text-[10px] md:text-xs font-bold mt-1">
+                                        Starting From {item.price}
+                                    </span>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* Featured Products Section */}
             <section className="py-16 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
