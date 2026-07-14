@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FiArrowRight, FiGift, FiPackage, FiChevronLeft, FiChevronRight, FiTruck, FiLock, FiCheckCircle, FiStar } from 'react-icons/fi';
-import { useGetFeaturedProductsQuery, useGetCategoriesQuery } from '../store/api/productsApi';
+import { useGetFeaturedProductsQuery, useGetCategoriesQuery, useGetProductsQuery } from '../store/api/productsApi';
 import ProductSlider from '../components/products/ProductSlider';
 import Button from '../components/common/Button';
 
@@ -239,7 +239,15 @@ const Home = () => {
         setCurrentSlide((prev) => (prev === 0 ? homeBanners.length - 1 : prev - 1));
     };
 
-    const { data: popularData, isLoading: popularLoading } = useGetFeaturedProductsQuery(8);
+    const [bestsellerTab, setBestsellerTab] = useState('personalised');
+    const bestsellerCategoryMap = {
+        personalised: '6a5297fccb0f753bdffcae71',
+        flowers: '6a5297fccb0f753bdffcae72'
+    };
+    const { data: bestsellerProductsData, isLoading: bestsellerLoading } = useGetProductsQuery({
+        category: bestsellerCategoryMap[bestsellerTab],
+        limit: 8
+    });
     const { data: categoriesData } = useGetCategoriesQuery();
 
     return (
@@ -490,24 +498,52 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Featured Products Section */}
-            <section className="py-16 bg-white">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl md:text-4xl font-black mb-4 tracking-tight">
-                            <span className="text-[#FF64B4]">Popular</span> <span className="text-[#4cc9f0]">Gifts</span>
-                        </h2>
-                        <p className="text-gray-600 mb-6 text-sm md:text-base">Loved by thousands of happy customers</p>
-                        <Link to="/products?sort=bestselling">
-                            <Button variant="ghost" icon={<FiArrowRight />} iconPosition="right">
-                                View All
-                            </Button>
+            {/* Bestsellers Tabbed Section (Winni-style) */}
+            <section className="py-14 bg-pink-50/5 border-b border-gray-100">
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+                    {/* Bestsellers Section Header with Tabs */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10 pb-4 border-b border-gray-100 relative">
+                        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                            <h2 className="text-2xl md:text-3xl font-black text-gray-800 tracking-tight">
+                                Bestsellers
+                            </h2>
+                            {/* Tabs container */}
+                            <div className="flex items-center bg-gray-50 p-1 rounded-xl border border-gray-150">
+                                <button
+                                    onClick={() => setBestsellerTab('personalised')}
+                                    className={`relative px-4 py-2 text-xs md:text-sm font-extrabold rounded-lg transition-all duration-300 ${
+                                        bestsellerTab === 'personalised'
+                                            ? 'bg-gray-800 text-white shadow-sm after:content-[""] after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-[8px] after:border-l-[6px] after:border-l-transparent after:border-r-[6px] after:border-r-transparent after:border-t-[6px] after:border-t-gray-800'
+                                            : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100/50'
+                                    }`}
+                                >
+                                    Personalised
+                                </button>
+                                <button
+                                    onClick={() => setBestsellerTab('flowers')}
+                                    className={`relative px-4 py-2 text-xs md:text-sm font-extrabold rounded-lg transition-all duration-300 ${
+                                        bestsellerTab === 'flowers'
+                                            ? 'bg-gray-800 text-white shadow-sm after:content-[""] after:absolute after:left-1/2 after:-translate-x-1/2 after:-bottom-[8px] after:border-l-[6px] after:border-l-transparent after:border-r-[6px] after:border-r-transparent after:border-t-[6px] after:border-t-gray-800'
+                                            : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100/50'
+                                    }`}
+                                >
+                                    Flowers
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* View All Button */}
+                        <Link
+                            to={`/products?category=${bestsellerCategoryMap[bestsellerTab]}`}
+                            className="bg-[#FF64B4] hover:bg-[#ff4da6] text-white text-[10px] md:text-xs font-bold px-4 md:px-5 py-2.5 rounded-lg shadow-sm transition-colors duration-300 tracking-wider uppercase self-start sm:self-center"
+                        >
+                            View All
                         </Link>
                     </div>
 
                     <ProductSlider
-                        products={popularData?.data}
-                        isLoading={popularLoading}
+                        products={bestsellerProductsData?.data}
+                        isLoading={bestsellerLoading}
                     />
                 </div>
             </section>
