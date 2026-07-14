@@ -342,6 +342,40 @@ const Home = () => {
                 </div>
             </section>
 
+            {/* Must Have Promotions Grid Section */}
+            <section className="py-14 bg-slate-50/50 border-y border-gray-100">
+                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-10">
+                        <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight">
+                            <span className="text-gray-900">Must</span> <span className="text-[#FF64B4]">Have</span>
+                        </h2>
+                        <p className="text-gray-500 text-sm md:text-base">Explore our trending and handpicked favorites</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {/* Column 1 */}
+                        <div className="flex flex-col gap-6">
+                            <PromoCardItem card={getPromoForSlot(1)} />
+                            <PromoCardItem card={getPromoForSlot(4)} />
+                            <PromoCardItem card={getPromoForSlot(7)} />
+                        </div>
+                        
+                        {/* Column 2 */}
+                        <div className="flex flex-col gap-6">
+                            <PromoCardItem card={getPromoForSlot(2)} />
+                            <PromoCardItem card={getPromoForSlot(5)} isDouble={true} />
+                        </div>
+                        
+                        {/* Column 3 */}
+                        <div className="flex flex-col gap-6">
+                            <PromoCardItem card={getPromoForSlot(3)} />
+                            <PromoCardItem card={getPromoForSlot(6)} />
+                            <PromoCardItem card={getPromoForSlot(8)} />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* Gift Categories Section - Modern Editorial Layout */}
             <section className="py-12 bg-[#fafcff]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -412,40 +446,6 @@ const Home = () => {
                                 })}
                         </div>
                     )}
-                </div>
-            </section>
-
-            {/* Must Have Promotions Grid Section */}
-            <section className="py-14 bg-slate-50/50 border-y border-gray-100">
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-10">
-                        <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight">
-                            <span className="text-gray-900">Must</span> <span className="text-[#FF64B4]">Have</span>
-                        </h2>
-                        <p className="text-gray-500 text-sm md:text-base">Explore our trending and handpicked favorites</p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Column 1 */}
-                        <div className="flex flex-col gap-6">
-                            <PromoCardItem card={getPromoForSlot(1)} />
-                            <PromoCardItem card={getPromoForSlot(4)} />
-                            <PromoCardItem card={getPromoForSlot(7)} />
-                        </div>
-                        
-                        {/* Column 2 */}
-                        <div className="flex flex-col gap-6">
-                            <PromoCardItem card={getPromoForSlot(2)} />
-                            <PromoCardItem card={getPromoForSlot(5)} isDouble={true} />
-                        </div>
-                        
-                        {/* Column 3 */}
-                        <div className="flex flex-col gap-6">
-                            <PromoCardItem card={getPromoForSlot(3)} />
-                            <PromoCardItem card={getPromoForSlot(6)} />
-                            <PromoCardItem card={getPromoForSlot(8)} />
-                        </div>
-                    </div>
                 </div>
             </section>
 
