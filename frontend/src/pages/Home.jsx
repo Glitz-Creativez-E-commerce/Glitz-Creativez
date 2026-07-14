@@ -39,10 +39,165 @@ const defaultBanners = [
     }
 ];
 
+const defaultPromos = [
+    {
+        slot: 1,
+        title: 'Mango Cake',
+        subtitle: "Summer's Sweet Tropical Escape",
+        image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80',
+        link: '/products?search=cake',
+        isActive: true
+    },
+    {
+        slot: 2,
+        title: 'Winni Celebration Sale',
+        subtitle: 'Amazing Discounts',
+        image: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=600&q=80',
+        link: '/products',
+        isActive: true
+    },
+    {
+        slot: 3,
+        title: 'Anniversary Flowers',
+        subtitle: 'Fresh Blooms for Lasting Love',
+        image: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80',
+        link: '/products?search=flower',
+        isActive: true
+    },
+    {
+        slot: 4,
+        title: 'New Arrival',
+        subtitle: 'New & Made with Your Touch',
+        image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80',
+        link: '/products',
+        isActive: true
+    },
+    {
+        slot: 5,
+        title: 'Lucky Bamboo Plants',
+        subtitle: 'Grow Positivity Every Day',
+        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+        link: '/products?search=plant',
+        isActive: true
+    },
+    {
+        slot: 6,
+        title: 'Caricatures',
+        subtitle: 'Turning Memories into Art',
+        image: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80',
+        link: '/products?search=caricature',
+        isActive: true
+    },
+    {
+        slot: 7,
+        title: 'Winni Chocolates',
+        subtitle: 'Made to Melt Hearts',
+        image: 'https://images.unsplash.com/photo-1548907040-4d42b52115ca?auto=format&fit=crop&w=600&q=80',
+        link: '/products?search=chocolate',
+        isActive: true
+    },
+    {
+        slot: 8,
+        title: 'Personalised Accessories',
+        subtitle: 'Crafted to Reflect You',
+        image: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80',
+        link: '/products?search=personalised',
+        isActive: true
+    }
+];
+
+const PromoCardItem = ({ card, isDouble = false }) => {
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    if (!card) return null;
+
+    const imageUrl = card.image?.startsWith('http') ? card.image : `${API_URL}${card.image}`;
+    const isSlot2 = card.slot === 2;
+
+    const titleColors = {
+        1: 'text-[#E67E22]', // Orange for Cake
+        3: 'text-[#E91E63]', // Pink for Flowers
+        4: 'text-[#8E44AD]', // Purple for New Arrival
+        5: 'text-[#27AE60]', // Green for Plants
+        6: 'text-[#2C3E50]', // Navy for Caricatures
+        7: 'text-[#7E5109]', // Brown for Chocolates
+        8: 'text-[#2980B9]'  // Blue for Accessories
+    };
+    
+    const textColor = titleColors[card.slot] || 'text-gray-800';
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className={`group relative overflow-hidden rounded-2xl border border-gray-100 bg-[#FAF9FC] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
+                isDouble ? 'md:row-span-2 min-h-[320px] md:h-full' : 'h-[220px]'
+            }`}
+        >
+            <Link to={card.link} className="absolute inset-0 flex flex-col justify-between p-5">
+                {isSlot2 ? (
+                    <div className="absolute inset-0">
+                        <img
+                            src={imageUrl}
+                            alt={card.title}
+                            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        />
+                    </div>
+                ) : (
+                    <>
+                        <div className="text-center z-10">
+                            <h3 className={`text-base md:text-lg font-extrabold tracking-tight mb-1 ${textColor}`}>
+                                {card.title}
+                            </h3>
+                            {card.subtitle && (
+                                <p className="text-[10px] md:text-xs text-gray-500 font-medium">
+                                    {card.subtitle}
+                                </p>
+                            )}
+                        </div>
+                        <div className="relative w-full flex-1 flex items-center justify-center mt-2 overflow-hidden">
+                            <img
+                                src={imageUrl}
+                                alt={card.title}
+                                className={`object-contain transition-transform duration-500 ease-out group-hover:scale-105 ${
+                                    isDouble ? 'max-h-[160px] md:max-h-[260px]' : 'max-h-[110px]'
+                                }`}
+                            />
+                        </div>
+                    </>
+                )}
+            </Link>
+        </motion.div>
+    );
+};
+
 const Home = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     const [currentSlide, setCurrentSlide] = useState(0);
     const [homeBanners, setHomeBanners] = useState(defaultBanners);
+    const [promos, setPromos] = useState([]);
+
+    useEffect(() => {
+        const fetchPromos = async () => {
+            try {
+                const res = await fetch(`${API_URL}/api/promos`);
+                const json = await res.json();
+                if (json.success && json.data) {
+                    setPromos(json.data);
+                }
+            } catch (err) {
+                console.error('Error fetching promos:', err);
+            }
+        };
+        fetchPromos();
+    }, []);
+
+    const getPromoForSlot = (slotNum) => {
+        const dbPromo = promos.find(p => p.slot === slotNum);
+        if (dbPromo && dbPromo.isActive) return dbPromo;
+        return defaultPromos.find(p => p.slot === slotNum);
+    };
 
     useEffect(() => {
         const fetchBanners = async () => {
@@ -260,142 +415,40 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Must Have Section */}
-            <section className="py-16 bg-[#fafcff]">
+            {/* Must Have Promotions Grid Section */}
+            <section className="py-14 bg-slate-50/50 border-y border-gray-100">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-12">
+                    <div className="text-center mb-10">
                         <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight">
-                            <span className="text-[#FF64B4]">Must</span> <span className="text-[#4cc9f0]">Have</span>
+                            <span className="text-gray-900">Must</span> <span className="text-[#FF64B4]">Have</span>
                         </h2>
-                        <p className="text-gray-500 text-sm md:text-base">Selected picks of our most requested items</p>
+                        <p className="text-gray-500 text-sm md:text-base">Explore our trending and handpicked favorites</p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {/* Column 1: Left */}
-                        <div className="space-y-6 flex flex-col">
-                            {/* Card 1: Mango Cake */}
-                            <Link to="/products" className="group block bg-[#FAF4FC] rounded-3xl border border-[#FAF4FC] hover:border-[#FF64B4]/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-[280px] md:h-[350px]">
-                                <div className="p-6 text-center">
-                                    <h4 className="text-xl md:text-2xl font-black text-[#FF64B4] mb-1">Mango Cake</h4>
-                                    <p className="text-gray-500 text-xs md:text-sm font-medium italic">Summer's Sweet Tropical Escape</p>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center p-4">
-                                    <img 
-                                        src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500" 
-                                        alt="Mango Cake" 
-                                        className="h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                </div>
-                            </Link>
-
-                            {/* Card 2: New Arrival */}
-                            <Link to="/products" className="group block bg-[#F6FAF6] rounded-3xl border border-[#F6FAF6] hover:border-[#4cc9f0]/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-[280px] md:h-[350px]">
-                                <div className="p-6 text-center">
-                                    <h4 className="text-xl md:text-2xl font-black text-emerald-600 mb-1">New Arrival</h4>
-                                    <p className="text-gray-500 text-xs md:text-sm font-medium italic">New & Made with Your Touch</p>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center p-4">
-                                    <img 
-                                        src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=500" 
-                                        alt="New Arrival" 
-                                        className="h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                </div>
-                            </Link>
-
-                            {/* Card 3: Chocolates */}
-                            <Link to="/products" className="group block bg-[#FCF8F4] rounded-3xl border border-[#FCF8F4] hover:border-yellow-600/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-[280px] md:h-[350px]">
-                                <div className="p-6 text-center">
-                                    <h4 className="text-xl md:text-2xl font-black text-[#A0522D] mb-1">Winni Chocolates</h4>
-                                    <p className="text-gray-500 text-xs md:text-sm font-medium italic">Made to Melt Hearts</p>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center p-4">
-                                    <img 
-                                        src="https://images.unsplash.com/photo-1511381939415-e44015466834?w=500" 
-                                        alt="Winni Chocolates" 
-                                        className="h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                </div>
-                            </Link>
-                        </div>
-
-                        {/* Column 2: Center */}
-                        <div className="space-y-6 flex flex-col">
-                            {/* Card 4: Celebration Sale */}
-                            <Link to="/products" className="group block bg-gradient-to-br from-amber-500 to-orange-600 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-[280px] md:h-[350px] relative">
-                                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=500')] bg-cover bg-center mix-blend-overlay opacity-30"></div>
-                                <div className="h-full flex flex-col justify-center items-center p-8 text-center text-white z-10 space-y-4">
-                                    <span className="bg-white/25 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">Winni Celebration</span>
-                                    <h3 className="text-3xl md:text-5xl font-black leading-none drop-shadow-md">SALE</h3>
-                                    <p className="text-amber-100 text-lg md:text-xl font-bold drop-shadow-sm">Amazing Discounts</p>
-                                    <p className="text-amber-50 text-xs font-medium max-w-xs leading-relaxed">on Cakes, Flowers, Personalised Gifts and More!</p>
-                                    <span className="bg-white text-orange-600 font-bold px-6 py-2 rounded-full text-sm shadow-md group-hover:scale-105 transition-transform">Order Now</span>
-                                </div>
-                            </Link>
-
-                            {/* Card 5: Lucky Bamboo Plants (Double Height) */}
-                            <Link to="/products" className="group block bg-[#F4F9F4] rounded-3xl border border-[#F4F9F4] hover:border-green-600/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col flex-1 h-[584px] md:h-[724px]">
-                                <div className="p-6 text-center">
-                                    <h4 className="text-xl md:text-2xl font-black text-green-600 mb-1">Lucky Bamboo Plants</h4>
-                                    <p className="text-gray-500 text-xs md:text-sm font-medium italic">Grow Positivity Every Day</p>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center p-6">
-                                    <img 
-                                        src="https://images.unsplash.com/photo-1512428559087-560fa5ceab42?w=500" 
-                                        alt="Lucky Bamboo Plants" 
-                                        className="h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                </div>
-                            </Link>
-                        </div>
-
-                        {/* Column 3: Right */}
-                        <div className="space-y-6 flex flex-col md:col-span-2 lg:col-span-1">
-                            {/* Card 6: Anniversary Flowers */}
-                            <Link to="/products" className="group block bg-[#FAF4FC] rounded-3xl border border-[#FAF4FC] hover:border-[#FF64B4]/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-[280px] md:h-[350px]">
-                                <div className="p-6 text-center">
-                                    <h4 className="text-xl md:text-2xl font-black text-[#FF64B4] mb-1">Anniversary Flowers</h4>
-                                    <p className="text-gray-500 text-xs md:text-sm font-medium italic">Fresh Blooms for Lasting Love</p>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center p-4">
-                                    <img 
-                                        src="https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=500" 
-                                        alt="Anniversary Flowers" 
-                                        className="h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                </div>
-                            </Link>
-
-                            {/* Card 7: Caricatures */}
-                            <Link to="/products" className="group block bg-[#FAF9F5] rounded-3xl border border-[#FAF9F5] hover:border-yellow-600/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-[280px] md:h-[350px]">
-                                <div className="p-6 text-center">
-                                    <h4 className="text-xl md:text-2xl font-black text-amber-700 mb-1">Caricatures</h4>
-                                    <p className="text-gray-500 text-xs md:text-sm font-medium italic">Turning Memories into Art</p>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center p-4">
-                                    <img 
-                                        src="https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=500" 
-                                        alt="Caricatures" 
-                                        className="h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                </div>
-                            </Link>
-
-                            {/* Card 8: Personalised Accessories */}
-                            <Link to="/products" className="group block bg-[#F4F8FA] rounded-3xl border border-[#F4F8FA] hover:border-blue-600/20 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col h-[280px] md:h-[350px]">
-                                <div className="p-6 text-center">
-                                    <h4 className="text-xl md:text-2xl font-black text-[#1E90FF] mb-1">Personalised Accessories</h4>
-                                    <p className="text-gray-500 text-xs md:text-sm font-medium italic">Crafted to Reflect You</p>
-                                </div>
-                                <div className="flex-1 flex items-center justify-center p-4">
-                                    <img 
-                                        src="https://images.unsplash.com/photo-1627124112126-7d4ad2e65436?w=500" 
-                                        alt="Personalised Accessories" 
-                                        className="h-full object-contain group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                </div>
-                            </Link>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto md:auto-rows-[220px]">
+                        {/* Slot 1 */}
+                        <PromoCardItem card={getPromoForSlot(1)} />
+                        
+                        {/* Slot 2 */}
+                        <PromoCardItem card={getPromoForSlot(2)} />
+                        
+                        {/* Slot 3 */}
+                        <PromoCardItem card={getPromoForSlot(3)} />
+                        
+                        {/* Slot 4 */}
+                        <PromoCardItem card={getPromoForSlot(4)} />
+                        
+                        {/* Slot 5 (Double Height Center) */}
+                        <PromoCardItem card={getPromoForSlot(5)} isDouble={true} />
+                        
+                        {/* Slot 6 */}
+                        <PromoCardItem card={getPromoForSlot(6)} />
+                        
+                        {/* Slot 7 */}
+                        <PromoCardItem card={getPromoForSlot(7)} />
+                        
+                        {/* Slot 8 */}
+                        <PromoCardItem card={getPromoForSlot(8)} />
                     </div>
                 </div>
             </section>

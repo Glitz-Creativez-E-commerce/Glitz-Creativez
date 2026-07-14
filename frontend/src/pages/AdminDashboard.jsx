@@ -8,7 +8,7 @@ import {
     FiGrid, FiGift, FiSettings, FiLogOut, FiHome,
     FiMenu, FiX, FiChevronLeft, FiTag, FiPieChart,
     FiBarChart2, FiActivity, FiCheck, FiImage, FiLock, FiInfo, FiStar,
-    FiTruck, FiCheckCircle
+    FiTruck, FiCheckCircle, FiLayout
 } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 import { selectCurrentUser, selectIsAuthenticated, logout, updateProfile } from '../store/slices/authSlice';
@@ -22,6 +22,7 @@ import DashboardCharts from '../components/admin/DashboardCharts';
 import OrderDetailsModal from '../components/admin/OrderDetailsModal';
 import UserDetailsModal from '../components/admin/UserDetailsModal';
 import BannerModal from '../components/admin/BannerModal';
+import PromoModal from '../components/admin/PromoModal';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -43,16 +44,20 @@ const AdminDashboard = () => {
     const [users, setUsers] = useState([]);
     const [categories, setCategories] = useState([]);
     const [banners, setBanners] = useState([]);
+    const [promos, setPromos] = useState([]);
     const [loading, setLoading] = useState(true);
 
     // Modal State
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [isBannerModalOpen, setIsBannerModalOpen] = useState(false);
+    const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
     const [isAdminSettingsModalOpen, setIsAdminSettingsModalOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState(null);
     const [editingCategory, setEditingCategory] = useState(null);
     const [editingBanner, setEditingBanner] = useState(null);
+    const [editingPromo, setEditingPromo] = useState(null);
+    const [editingSlotNum, setEditingSlotNum] = useState(null);
 
     // Order Modal State
     const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -106,17 +111,22 @@ const AdminDashboard = () => {
             // Fetch banners
             const bannersRes = await fetch(`${API_URL}/api/banners?all=true`, { headers });
 
+            // Fetch promos
+            const promosRes = await fetch(`${API_URL}/api/promos?all=true`, { headers });
+
             const productsData = await productsRes.json();
             const categoriesData = await categoriesRes.json();
             const ordersData = await ordersRes.json(); // May throw if 401 and not JSON, but we checked status above
             const usersData = await usersRes.json();
             const bannersData = await bannersRes.json();
+            const promosData = await promosRes.json();
 
             setProducts(productsData.data || []);
             setCategories(categoriesData.data || []);
             setOrders(ordersData.data || []);
             setUsers(usersData.data || []);
             setBanners(bannersData.data || []);
+            setPromos(promosData.data || []);
 
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
@@ -314,6 +324,46 @@ const AdminDashboard = () => {
         setIsBannerModalOpen(true);
     };
 
+    // --- Handlers: Promotions ---
+    const handleSavePromo = async (promoData) => {
+        try {
+            const res = await fetch(`${API_URL}/api/promos`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify(promoData),
+            });
+            if (res.ok) {
+                fetchDashboardData();
+                setIsPromoModalOpen(false);
+                setEditingPromo(null);
+                setEditingSlotNum(null);
+            }
+        } catch (error) {
+            console.error('Error saving promo card:', error);
+        }
+    };
+
+    const handleDeletePromo = async (id) => {
+        if (!window.confirm('Are you sure you want to reset this promo slot to default?')) return;
+        try {
+            const res = await fetch(`${API_URL}/api/promos/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders(),
+            });
+            if (res.ok) {
+                fetchDashboardData();
+            }
+        } catch (error) {
+            console.error('Error resetting promo card:', error);
+        }
+    };
+
+    const openPromoModal = (slotNum, promo = null) => {
+        setEditingSlotNum(slotNum);
+        setEditingPromo(promo);
+        setIsPromoModalOpen(true);
+    };
+
     const handleLogout = () => {
         dispatch(logout());
         navigate('/auth');
@@ -354,6 +404,7 @@ const AdminDashboard = () => {
         { id: 'overview', label: 'Overview', icon: <FiGrid size={20} /> },
         { id: 'analytics', label: 'Analytics', icon: <FiPieChart size={20} /> },
         { id: 'banners', label: 'Banners', icon: <FiImage size={20} /> },
+        { id: 'promos', label: 'Promotions', icon: <FiLayout size={20} /> },
         { id: 'categories', label: 'Categories', icon: <FiTag size={20} /> },
         { id: 'products', label: 'Products', icon: <FiPackage size={20} /> },
         { id: 'orders', label: 'Orders', icon: <FiShoppingBag size={20} /> },
@@ -870,6 +921,116 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
+                    {/* Promotions Tab */}
+                    {activeTab === 'promos' && (
+                        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                            <div className="p-6 border-b border-gray-100">
+                                <h2 className="text-xl font-bold text-gray-900">Homepage Promotions Grid (8 Fixed Slots)</h2>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    Configure promotion cards for your homepage grid. If a slot is empty, the storefront will display its default fallback design.
+                                </p>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <thead className="bg-gray-50/50 border-b border-gray-100">
+                                        <tr>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Slot</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Position Label</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Image Preview</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Title</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Link</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Status</th>
+                                            <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {[1, 2, 3, 4, 5, 6, 7, 8].map((slotNum) => {
+                                            const promo = promos.find(p => p.slot === slotNum);
+                                            const labels = {
+                                                1: 'Slot 1: Top Left Card (e.g. Cakes)',
+                                                2: 'Slot 2: Top Center Wide Banner',
+                                                3: 'Slot 3: Top Right Card (e.g. Flowers)',
+                                                4: 'Slot 4: Middle Left Card (e.g. New Arrivals)',
+                                                5: 'Slot 5: Center Double Height Card',
+                                                6: 'Slot 6: Middle Right Card (e.g. Caricatures)',
+                                                7: 'Slot 7: Bottom Left Card (e.g. Chocolates)',
+                                                8: 'Slot 8: Bottom Right Card (e.g. Personalised Accessories)'
+                                            };
+                                            
+                                            return (
+                                                <tr key={slotNum} className="hover:bg-gray-50">
+                                                    <td className="px-6 py-4 border border-gray-200 font-mono text-sm font-bold text-gray-900">
+                                                        Slot {slotNum}
+                                                    </td>
+                                                    <td className="px-6 py-4 border border-gray-200 text-sm font-semibold text-gray-700">
+                                                        {labels[slotNum]}
+                                                    </td>
+                                                    <td className="px-6 py-4 border border-gray-200">
+                                                        {promo?.image ? (
+                                                            <div className="h-12 w-20 rounded bg-gray-100 border border-gray-200 overflow-hidden">
+                                                                <img
+                                                                    src={promo.image.startsWith('http') ? promo.image : `${API_URL}${promo.image}`}
+                                                                    alt={promo.title}
+                                                                    className="h-full w-full object-cover"
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400 italic">Default Fallback Image</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 border border-gray-200">
+                                                        {promo ? (
+                                                            <div className="flex flex-col">
+                                                                <span className="font-bold text-gray-900 text-sm">{promo.title}</span>
+                                                                {promo.subtitle && <span className="text-xs text-gray-500">{promo.subtitle}</span>}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-xs text-gray-400 italic">Default Fallback Text</span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 border border-gray-200 text-sm font-mono text-gray-600">
+                                                        {promo?.link || '/products'}
+                                                    </td>
+                                                    <td className="px-6 py-4 border border-gray-200">
+                                                        {promo ? (
+                                                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${promo.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                                {promo.isActive ? 'Active' : 'Inactive'}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">
+                                                                Fallback Active
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right border border-gray-200">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            <button
+                                                                onClick={() => openPromoModal(slotNum, promo)}
+                                                                className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-500"
+                                                                title="Edit Promotion Card"
+                                                            >
+                                                                <FiEdit2 size={18} />
+                                                            </button>
+                                                            {promo && (
+                                                                <button
+                                                                    onClick={() => handleDeletePromo(promo._id)}
+                                                                    className="p-2 rounded-lg hover:bg-red-50 text-gray-500 hover:text-red-500"
+                                                                    title="Reset to default"
+                                                                >
+                                                                    <FiTrash2 size={18} />
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Categories Tab */}
                     {
                         activeTab === 'categories' && (
@@ -1137,6 +1298,18 @@ const AdminDashboard = () => {
                 onSubmit={editingBanner ? handleUpdateBanner : handleCreateBanner}
                 banner={editingBanner}
                 banners={banners}
+            />
+
+            <PromoModal
+                isOpen={isPromoModalOpen}
+                onClose={() => {
+                    setIsPromoModalOpen(false);
+                    setEditingPromo(null);
+                    setEditingSlotNum(null);
+                }}
+                onSubmit={handleSavePromo}
+                slotNum={editingSlotNum}
+                promo={editingPromo}
             />
 
             <AdminSettingsModal
