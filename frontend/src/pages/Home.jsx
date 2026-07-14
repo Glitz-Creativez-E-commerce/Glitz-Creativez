@@ -93,7 +93,7 @@ const defaultPromos = [
         slot: 7,
         title: 'Winni Chocolates',
         subtitle: 'Made to Melt Hearts',
-        image: 'https://images.unsplash.com/photo-1549007994-cb92ca817b7a?auto=format&fit=crop&w=600&q=80',
+        image: 'https://images.unsplash.com/photo-1548907040-4d42b52115ca?auto=format&fit=crop&w=600&q=80',
         link: '/products?search=chocolate',
         isActive: true
     },
@@ -148,6 +148,10 @@ const PromoCardItem = ({ card, isDouble = false }) => {
                             src={imageUrl}
                             alt={card.title}
                             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                            onError={(e) => { 
+                                e.target.onerror = null; 
+                                e.target.src = 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=600&q=80'; 
+                            }}
                         />
                     </div>
                 ) : (
@@ -167,6 +171,19 @@ const PromoCardItem = ({ card, isDouble = false }) => {
                                 src={imageUrl}
                                 alt={card.title}
                                 className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-105"
+                                onError={(e) => { 
+                                    const fallbacks = {
+                                        1: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80',
+                                        3: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80',
+                                        4: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&w=600&q=80',
+                                        5: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80',
+                                        6: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80',
+                                        7: 'https://images.unsplash.com/photo-1548907040-4d42b52115ca?auto=format&fit=crop&w=600&q=80',
+                                        8: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80'
+                                    };
+                                    e.target.onerror = null; 
+                                    e.target.src = fallbacks[card.slot] || '/images/placeholder.png'; 
+                                }}
                             />
                         </div>
                     </>
