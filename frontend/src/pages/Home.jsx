@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { FiArrowRight, FiGift, FiPackage, FiChevronLeft, FiChevronRight, FiTruck, FiLock, FiCheckCircle, FiStar } from 'react-icons/fi';
 import { useGetFeaturedProductsQuery, useGetCategoriesQuery, useGetProductsQuery } from '../store/api/productsApi';
 import ProductSlider from '../components/products/ProductSlider';
+import ProductCard from '../components/products/ProductCard';
 import Button from '../components/common/Button';
 
 const defaultBanners = [
@@ -540,11 +541,23 @@ const Home = () => {
                             View All
                         </Link>
                     </div>
-
-                    <ProductSlider
-                        products={bestsellerProductsData?.data}
-                        isLoading={bestsellerLoading}
-                    />
+                    {bestsellerLoading ? (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                            {[...Array(4)].map((_, index) => (
+                                <div key={index} className="w-full bg-gray-100 animate-pulse rounded-2xl h-[280px]" />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                            {bestsellerProductsData?.data?.slice(0, 4).map((product, index) => (
+                                <ProductCard
+                                    key={product._id}
+                                    product={product}
+                                    index={index}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </section>
 
