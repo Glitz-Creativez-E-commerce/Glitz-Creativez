@@ -157,13 +157,11 @@ const PromoCardItem = ({ card, isDouble = false }) => {
                                 </p>
                             )}
                         </div>
-                        <div className="relative w-full flex-1 flex items-center justify-center mt-3 overflow-hidden">
+                        <div className="relative w-full flex-1 overflow-hidden mt-2 border-t border-purple-50/30">
                             <img
                                 src={imageUrl}
                                 alt={card.title}
-                                className={`object-contain transition-transform duration-500 ease-out group-hover:scale-105 ${
-                                    isDouble ? 'max-h-[200px] md:max-h-[320px]' : 'max-h-[140px]'
-                                }`}
+                                className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-105"
                             />
                         </div>
                     </>
