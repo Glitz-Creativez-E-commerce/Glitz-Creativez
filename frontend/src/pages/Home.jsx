@@ -43,10 +43,10 @@ const defaultBanners = [
 const defaultPromos = [
     {
         slot: 1,
-        title: 'Mango Cake',
-        subtitle: "Summer's Sweet Tropical Escape",
-        image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80',
-        link: '/products?search=cake',
+        title: 'Gift Hampers',
+        subtitle: "Thoughtfully Curated Boxes",
+        image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80',
+        link: '/products?search=hamper',
         isActive: true
     },
     {
@@ -67,17 +67,17 @@ const defaultPromos = [
     },
     {
         slot: 4,
-        title: 'New Arrival',
-        subtitle: 'New & Made with Your Touch',
-        image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80',
-        link: '/products',
+        title: 'Personalised Journals',
+        subtitle: 'Embossed with Your Name',
+        image: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&w=600&q=80',
+        link: '/products?search=journal',
         isActive: true
     },
     {
         slot: 5,
         title: 'Lucky Bamboo Plants',
         subtitle: 'Grow Positivity Every Day',
-        image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80',
+        image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80',
         link: '/products?search=plant',
         isActive: true
     },
@@ -93,7 +93,7 @@ const defaultPromos = [
         slot: 7,
         title: 'Winni Chocolates',
         subtitle: 'Made to Melt Hearts',
-        image: 'https://images.unsplash.com/photo-1548907040-4d42b52115ca?auto=format&fit=crop&w=600&q=80',
+        image: 'https://images.unsplash.com/photo-1549007994-cb92ca817b7a?auto=format&fit=crop&w=600&q=80',
         link: '/products?search=chocolate',
         isActive: true
     },
