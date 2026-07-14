@@ -131,7 +131,7 @@ const PromoCardItem = ({ card, isDouble = false }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className={`group relative overflow-hidden rounded-3xl border border-[#FF64B4]/10 bg-[#FAF9FC] transition-all duration-300 hover:shadow-2xl hover:shadow-[#FF64B4]/12 hover:border-[#FF64B4]/30 hover:-translate-y-1.5 ${
+            className={`group relative overflow-hidden rounded-3xl border border-[#FF64B4]/10 bg-[#FAF9FC] transition-colors duration-300 hover:border-[#FF64B4]/25 ${
                 isDouble ? 'md:row-span-2 min-h-[350px] md:h-full' : 'h-[250px] md:h-[290px]'
             }`}
         >
