@@ -131,11 +131,11 @@ const PromoCardItem = ({ card, isDouble = false }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className={`group relative overflow-hidden rounded-2xl border border-[#FF64B4]/10 bg-[#FAF9FC] transition-all duration-300 hover:shadow-2xl hover:shadow-[#FF64B4]/10 hover:border-[#FF64B4]/30 hover:-translate-y-1.5 ${
+            className={`group relative overflow-hidden rounded-3xl border border-[#FF64B4]/10 bg-[#FAF9FC] transition-all duration-300 hover:shadow-2xl hover:shadow-[#FF64B4]/12 hover:border-[#FF64B4]/30 hover:-translate-y-1.5 ${
                 isDouble ? 'md:row-span-2 min-h-[350px] md:h-full' : 'h-[250px] md:h-[290px]'
             }`}
         >
-            <Link to={card.link} className="absolute inset-0 flex flex-col justify-between p-6">
+            <Link to={card.link} className="absolute inset-0 flex flex-col justify-between p-0 overflow-hidden">
                 {isSlot2 ? (
                     <div className="absolute inset-0">
                         <img
@@ -146,8 +146,8 @@ const PromoCardItem = ({ card, isDouble = false }) => {
                     </div>
                 ) : (
                     <>
-                        <div className="text-center z-10">
-                            <h3 className={`text-lg md:text-xl font-extrabold tracking-tight mb-1.5 ${textColor}`}>
+                        <div className="text-center pt-6 px-4 z-10 flex flex-col items-center">
+                            <h3 className={`text-lg md:text-xl font-extrabold tracking-tight mb-1 ${textColor}`}>
                                 {card.title}
                             </h3>
                             {card.subtitle && (
