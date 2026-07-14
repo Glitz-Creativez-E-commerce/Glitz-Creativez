@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiGift, FiPackage, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiArrowRight, FiGift, FiPackage, FiChevronLeft, FiChevronRight, FiTruck, FiLock, FiCheckCircle, FiStar } from 'react-icons/fi';
 import { useGetFeaturedProductsQuery, useGetCategoriesQuery } from '../store/api/productsApi';
 import ProductSlider from '../components/products/ProductSlider';
 import Button from '../components/common/Button';
@@ -342,6 +342,43 @@ const Home = () => {
                 </div>
             </section>
 
+            {/* Categories Circle Navigation Row (Winni-style) */}
+            {categoriesData?.data && categoriesData.data.length > 0 && (
+                <section className="py-6 bg-white border-b border-gray-100">
+                    <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-start md:justify-center gap-6 md:gap-10 overflow-x-auto scrollbar-none py-2 px-1">
+                            {categoriesData.data
+                                .filter(cat => cat.isActive !== false)
+                                .map((category) => {
+                                    const imageUrl = category.image?.startsWith('http') 
+                                        ? category.image 
+                                        : `${API_URL}${category.image}`;
+
+                                    return (
+                                        <Link 
+                                            key={category._id} 
+                                            to={`/products?category=${category._id}`}
+                                            className="flex flex-col items-center flex-shrink-0 group cursor-pointer"
+                                        >
+                                            <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border border-gray-150 bg-[#FAF9FC] flex items-center justify-center p-1 transition-all duration-300 group-hover:border-[#FF64B4] group-hover:shadow-md group-hover:shadow-[#FF64B4]/10">
+                                                <img
+                                                    src={imageUrl}
+                                                    alt={category.name}
+                                                    className="w-full h-full object-cover rounded-full transition-transform duration-500 ease-out group-hover:scale-105"
+                                                    onError={(e) => { e.target.onerror = null; e.target.src = '/images/placeholder.png'; }}
+                                                />
+                                            </div>
+                                            <span className="text-xs md:text-sm font-bold text-gray-700 mt-2 transition-colors duration-300 group-hover:text-[#FF64B4] whitespace-nowrap">
+                                                {category.name}
+                                            </span>
+                                        </Link>
+                                    );
+                                })}
+                        </div>
+                    </div>
+                </section>
+            )}
+
             {/* Must Have Promotions Grid Section */}
             <section className="py-14 bg-slate-50/50 border-y border-gray-100">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
@@ -468,6 +505,123 @@ const Home = () => {
                         products={popularData?.data}
                         isLoading={popularLoading}
                     />
+                </div>
+            </section>
+
+            {/* Testimonials / Customer Reviews Section (Winni-style) */}
+            <section className="py-16 bg-[#fafcff] border-t border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight">
+                            <span className="text-[#FF64B4]">Happy</span> <span className="text-[#4cc9f0]">Customers</span>
+                        </h2>
+                        <p className="text-gray-500 text-sm md:text-base">Real reviews from our lovely family of customers</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[
+                            {
+                                name: 'Ananya Sharma',
+                                role: 'Verified Buyer',
+                                rating: 5,
+                                text: 'Ordered the Mango Cake and it was absolutely fresh, rich, and delicious! The delivery was right on time for my dad’s birthday. Highly recommended!',
+                                initials: 'AS'
+                            },
+                            {
+                                name: 'Rahul Varma',
+                                role: 'Verified Buyer',
+                                rating: 5,
+                                text: 'The flowers were fresh, and the wrapping was so aesthetic. Secure checkout and excellent customer support through WhatsApp. Will order again!',
+                                initials: 'RV'
+                            },
+                            {
+                                name: 'Sneha Patel',
+                                role: 'Verified Buyer',
+                                rating: 5,
+                                text: 'Ordered a personalized caricature standee for my anniversary. The illustration was stunning and it brought a huge smile. Thank you Glitz!',
+                                initials: 'SP'
+                            }
+                        ].map((item, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                                className="bg-white rounded-3xl p-6 border border-purple-50 shadow-soft hover:shadow-lg transition-shadow duration-300"
+                            >
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-12 h-12 rounded-full bg-[#FF64B4]/10 flex items-center justify-center text-[#FF64B4] font-bold">
+                                        {item.initials}
+                                    </div>
+                                    <div>
+                                        <h4 className="font-extrabold text-gray-800 text-sm">{item.name}</h4>
+                                        <span className="text-xs text-gray-400 font-medium">{item.role}</span>
+                                    </div>
+                                </div>
+                                <div className="flex text-yellow-400 gap-0.5 mb-3">
+                                    {[...Array(item.rating)].map((_, i) => (
+                                        <FiStar key={i} className="fill-current w-4 h-4" />
+                                    ))}
+                                </div>
+                                <p className="text-gray-600 text-sm leading-relaxed italic">
+                                    "{item.text}"
+                                </p>
+                            </motion.div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Why Choose Glitz Creativez - Trust Section (Winni-style) */}
+            <section className="py-16 bg-white border-t border-gray-100">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl md:text-4xl font-black mb-3 tracking-tight">
+                            <span className="text-gray-900">Why Choose</span> <span className="text-[#FF64B4]">Glitz Creativez?</span>
+                        </h2>
+                        <p className="text-gray-500 text-sm md:text-base">We deliver emotions with absolute precision and trust</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {[
+                            {
+                                icon: <FiTruck className="w-8 h-8 text-[#FF64B4]" />,
+                                title: 'Same Day Delivery',
+                                desc: 'Express shipping covering all locations with midnight delivery options.'
+                            },
+                            {
+                                icon: <FiLock className="w-8 h-8 text-[#4cc9f0]" />,
+                                title: '100% Secure Checkout',
+                                desc: 'SSL encrypted payments handled through trusted and secure local gateways.'
+                            },
+                            {
+                                icon: <FiCheckCircle className="w-8 h-8 text-green-500" />,
+                                title: 'Quality Assured',
+                                desc: 'Strict freshness and styling checks on flowers, cakes, and custom gifts.'
+                            },
+                            {
+                                icon: <FiGift className="w-8 h-8 text-amber-500" />,
+                                title: 'Handcrafted With Love',
+                                desc: 'Thoughtfully curated and customizable creations crafted by local design experts.'
+                            }
+                        ].map((item, idx) => (
+                            <motion.div
+                                key={idx}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: idx * 0.08 }}
+                                className="flex flex-col items-center text-center p-6 bg-[#FAF9FC] rounded-3xl border border-gray-100/50"
+                            >
+                                <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md mb-4">
+                                    {item.icon}
+                                </div>
+                                <h3 className="font-extrabold text-gray-800 text-base mb-2">{item.title}</h3>
+                                <p className="text-gray-500 text-sm leading-relaxed">{item.desc}</p>
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
