@@ -126,15 +126,20 @@ const PromoCardItem = ({ card, isDouble = false }) => {
     
     const textColor = titleColors[card.slot] || 'text-gray-800';
 
+    let heightClass = 'h-[250px] md:h-[290px]';
+    if (isSlot2) {
+        heightClass = 'h-[250px] md:h-[350px]';
+    } else if (card.slot === 5) {
+        heightClass = 'min-h-[300px] md:h-[530px]';
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className={`group relative overflow-hidden rounded-3xl border border-[#FF64B4]/10 bg-[#FAF9FC] transition-colors duration-300 hover:border-[#FF64B4]/25 ${
-                isDouble ? 'md:row-span-2 min-h-[300px] md:h-[530px]' : 'h-[250px] md:h-[290px]'
-            }`}
+            className={`group relative overflow-hidden rounded-3xl border border-[#FF64B4]/10 bg-[#FAF9FC] transition-colors duration-300 hover:border-[#FF64B4]/25 ${heightClass}`}
         >
             <Link to={card.link} className="absolute inset-0 flex flex-col justify-between p-0 overflow-hidden">
                 {isSlot2 ? (
@@ -405,7 +410,7 @@ const Home = () => {
                         </div>
                         
                         {/* Column 2 */}
-                        <div className="flex flex-col gap-6">
+                        <div className="flex flex-col justify-between h-full">
                             <PromoCardItem card={getPromoForSlot(2)} />
                             <PromoCardItem card={getPromoForSlot(5)} isDouble={true} />
                         </div>
