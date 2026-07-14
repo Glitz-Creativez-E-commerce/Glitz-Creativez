@@ -91,17 +91,17 @@ const Home = () => {
         <div className="min-h-screen bg-white">
 
             {/* Hero Carousel Section */}
-            <section className="pt-24 md:pt-28 pb-8">
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="relative rounded-2xl overflow-hidden shadow-2xl h-[400px] md:h-[500px] lg:h-[600px] group">
+            <section className="pt-20 md:pt-24 pb-4">
+                <div className="w-full">
+                    <div className="relative overflow-hidden h-[150px] sm:h-[220px] md:h-[300px] lg:h-[350px] group shadow-sm bg-gray-50">
                         <AnimatePresence>
                             {homeBanners.length > 0 && (
                                 <motion.div
                                     key={currentSlide}
-                                    initial={{ opacity: 0, scale: 1.05 }}
+                                    initial={{ opacity: 0, scale: 1.02 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0 }}
-                                    transition={{ duration: 0.7 }}
+                                    transition={{ duration: 0.6 }}
                                     className="absolute inset-0"
                                 >
                                     <img 
@@ -109,45 +109,50 @@ const Home = () => {
                                         alt={homeBanners[currentSlide].title} 
                                         className="w-full h-full object-cover" 
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent md:bg-gradient-to-r md:from-black/80 md:via-black/40 md:to-transparent"></div>
-                                    <div className="absolute inset-0 flex flex-col justify-end md:justify-center p-8 md:p-16 w-full md:w-2/3 lg:w-1/2 z-10">
-                                        <motion.span 
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.3 }}
-                                            className={`inline-block px-4 py-1.5 text-white text-xs md:text-sm font-bold rounded-full mb-4 uppercase tracking-wider shadow-md w-fit ${homeBanners[currentSlide].accentText}`}
-                                        >
-                                            {homeBanners[currentSlide].subtitle}
-                                        </motion.span>
-                                        <motion.h2 
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.5 }}
-                                            className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-4 leading-tight drop-shadow-lg"
-                                        >
-                                            {homeBanners[currentSlide].title}
-                                        </motion.h2>
-                                        <motion.p 
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.7 }}
-                                            className="text-gray-200 mb-8 text-base md:text-xl drop-shadow-md hidden sm:block"
-                                        >
-                                            {homeBanners[currentSlide].description}
-                                        </motion.p>
-                                        <motion.div
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: 0.9 }}
-                                        >
-                                            <Link to={homeBanners[currentSlide].link}>
-                                                <button className="bg-white text-black hover:bg-gray-100 hover:-translate-y-1 transition-transform shadow-2xl rounded-full px-8 py-3 md:px-10 md:py-4 font-bold text-lg flex items-center group/btn">
-                                                    {homeBanners[currentSlide].buttonText || 'Shop Now'}
-                                                    <FiArrowRight className="ml-2 group-hover/btn:translate-x-1 transition-transform" />
-                                                </button>
-                                            </Link>
-                                        </motion.div>
-                                    </div>
+                                    {/* Only show text overlay if title is present and is not a dummy value */}
+                                    {homeBanners[currentSlide].title && !homeBanners[currentSlide].title.toLowerCase().includes('placeholder') && (
+                                        <>
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent md:bg-gradient-to-r md:from-black/75 md:via-black/30 md:to-transparent"></div>
+                                            <div className="absolute inset-0 flex flex-col justify-end md:justify-center p-6 md:p-12 w-full md:w-2/3 lg:w-1/2 z-10">
+                                                <motion.span 
+                                                    initial={{ opacity: 0, y: 15 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.2 }}
+                                                    className={`inline-block px-3 py-1 text-white text-[10px] md:text-xs font-bold rounded-full mb-2 uppercase tracking-wider shadow-sm w-fit ${homeBanners[currentSlide].accentText}`}
+                                                >
+                                                    {homeBanners[currentSlide].subtitle}
+                                                </motion.span>
+                                                <motion.h2 
+                                                    initial={{ opacity: 0, y: 15 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.4 }}
+                                                    className="text-2xl md:text-4xl lg:text-5xl font-black text-white mb-2 leading-tight drop-shadow-md"
+                                                >
+                                                    {homeBanners[currentSlide].title}
+                                                </motion.h2>
+                                                <motion.p 
+                                                    initial={{ opacity: 0, y: 15 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.6 }}
+                                                    className="text-gray-200 mb-4 text-xs md:text-sm drop-shadow-sm hidden md:block max-w-md"
+                                                >
+                                                    {homeBanners[currentSlide].description}
+                                                </motion.p>
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 15 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.8 }}
+                                                >
+                                                    <Link to={homeBanners[currentSlide].link}>
+                                                        <button className="bg-white text-black hover:bg-gray-100 hover:-translate-y-0.5 transition-transform shadow-lg rounded-full px-5 py-2 md:px-7 md:py-2.5 font-bold text-xs md:text-sm flex items-center group/btn">
+                                                            {homeBanners[currentSlide].buttonText || 'Shop Now'}
+                                                            <FiArrowRight className="ml-1.5 group-hover/btn:translate-x-1 transition-transform" />
+                                                        </button>
+                                                    </Link>
+                                                </motion.div>
+                                            </div>
+                                        </>
+                                    )}
                                 </motion.div>
                             )}
                         </AnimatePresence>
@@ -155,29 +160,29 @@ const Home = () => {
                         {/* Navigation Arrows */}
                         <button 
                             onClick={prevSlide}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 md:p-4 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 z-20"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-100 text-gray-800 p-2 md:p-2.5 rounded-full shadow-lg transition-all duration-300 z-20 flex items-center justify-center border border-gray-150"
                         >
-                            <FiChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+                            <FiChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                         <button 
                             onClick={nextSlide}
-                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-3 md:p-4 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 z-20"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white hover:bg-gray-100 text-gray-800 p-2 md:p-2.5 rounded-full shadow-lg transition-all duration-300 z-20 flex items-center justify-center border border-gray-150"
                         >
-                            <FiChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+                            <FiChevronRight className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
+                    </div>
 
-                        {/* Pagination Dots */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex space-x-3 z-20">
-                            {homeBanners.map((_, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => setCurrentSlide(index)}
-                                    className={`transition-all duration-300 rounded-full ${
-                                        currentSlide === index ? 'w-8 h-2.5 bg-white' : 'w-2.5 h-2.5 bg-white/50 hover:bg-white/80'
-                                    }`}
-                                />
-                            ))}
-                        </div>
+                    {/* Pagination Dots (styled and centered outside/below the banner image) */}
+                    <div className="flex justify-center items-center gap-1.5 mt-3">
+                        {homeBanners.map((_, index) => (
+                            <button
+                                key={index}
+                                onClick={() => setCurrentSlide(index)}
+                                className={`transition-all duration-300 rounded-full h-1.5 ${
+                                    currentSlide === index ? 'w-5 bg-[#FF64B4]' : 'w-1.5 bg-gray-300 hover:bg-gray-400'
+                                }`}
+                            />
+                        ))}
                     </div>
                 </div>
             </section>
