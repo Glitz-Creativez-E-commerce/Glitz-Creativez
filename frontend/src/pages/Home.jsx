@@ -131,11 +131,11 @@ const PromoCardItem = ({ card, isDouble = false }) => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className={`group relative overflow-hidden rounded-2xl border border-gray-100 bg-[#FAF9FC] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${
-                isDouble ? 'md:row-span-2 min-h-[320px] md:h-full' : 'h-[220px]'
+            className={`group relative overflow-hidden rounded-2xl border border-[#FF64B4]/10 bg-[#FAF9FC] transition-all duration-300 hover:shadow-2xl hover:shadow-[#FF64B4]/10 hover:border-[#FF64B4]/30 hover:-translate-y-1.5 ${
+                isDouble ? 'md:row-span-2 min-h-[350px] md:h-full' : 'h-[250px] md:h-[290px]'
             }`}
         >
-            <Link to={card.link} className="absolute inset-0 flex flex-col justify-between p-5">
+            <Link to={card.link} className="absolute inset-0 flex flex-col justify-between p-6">
                 {isSlot2 ? (
                     <div className="absolute inset-0">
                         <img
@@ -147,21 +147,21 @@ const PromoCardItem = ({ card, isDouble = false }) => {
                 ) : (
                     <>
                         <div className="text-center z-10">
-                            <h3 className={`text-base md:text-lg font-extrabold tracking-tight mb-1 ${textColor}`}>
+                            <h3 className={`text-lg md:text-xl font-extrabold tracking-tight mb-1.5 ${textColor}`}>
                                 {card.title}
                             </h3>
                             {card.subtitle && (
-                                <p className="text-[10px] md:text-xs text-gray-500 font-medium">
+                                <p className="text-xs md:text-sm text-gray-500 font-medium italic">
                                     {card.subtitle}
                                 </p>
                             )}
                         </div>
-                        <div className="relative w-full flex-1 flex items-center justify-center mt-2 overflow-hidden">
+                        <div className="relative w-full flex-1 flex items-center justify-center mt-3 overflow-hidden">
                             <img
                                 src={imageUrl}
                                 alt={card.title}
                                 className={`object-contain transition-transform duration-500 ease-out group-hover:scale-105 ${
-                                    isDouble ? 'max-h-[160px] md:max-h-[260px]' : 'max-h-[110px]'
+                                    isDouble ? 'max-h-[200px] md:max-h-[320px]' : 'max-h-[140px]'
                                 }`}
                             />
                         </div>
