@@ -111,8 +111,24 @@ const PromoCardItem = ({ card, isDouble = false }) => {
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
     if (!card) return null;
 
-    const imageUrl = card.image?.startsWith('http') ? card.image : `${API_URL}${card.image}`;
     const isSlot2 = card.slot === 2;
+    const defaultFallbacks = {
+        1: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80',
+        2: 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=600&q=80',
+        3: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80',
+        4: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&w=600&q=80',
+        5: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80',
+        6: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80',
+        7: 'https://images.unsplash.com/photo-1548907040-4d42b52115ca?auto=format&fit=crop&w=600&q=80',
+        8: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80'
+    };
+
+    const initialUrl = card.image?.startsWith('http') ? card.image : `${API_URL}${card.image}`;
+    const [imgSrc, setImgSrc] = useState(initialUrl);
+
+    useEffect(() => {
+        setImgSrc(card.image?.startsWith('http') ? card.image : `${API_URL}${card.image}`);
+    }, [card.image, API_URL]);
 
     const titleColors = {
         1: 'text-[#E67E22]', // Orange for Cake
@@ -133,6 +149,13 @@ const PromoCardItem = ({ card, isDouble = false }) => {
         heightClass = 'min-h-[300px] md:h-[530px]';
     }
 
+    const handleImgError = () => {
+        const fallback = defaultFallbacks[card.slot] || '/images/placeholder.png';
+        if (imgSrc !== fallback) {
+            setImgSrc(fallback);
+        }
+    };
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -145,13 +168,10 @@ const PromoCardItem = ({ card, isDouble = false }) => {
                 {isSlot2 ? (
                     <div className="absolute inset-0">
                         <img
-                            src={imageUrl}
+                            src={imgSrc}
                             alt={card.title}
                             className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                            onError={(e) => { 
-                                e.target.onerror = null; 
-                                e.target.src = 'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?auto=format&fit=crop&w=600&q=80'; 
-                            }}
+                            onError={handleImgError}
                         />
                     </div>
                 ) : (
@@ -168,22 +188,10 @@ const PromoCardItem = ({ card, isDouble = false }) => {
                         </div>
                         <div className="relative w-full flex-1 overflow-hidden mt-2 border-t border-purple-50/30">
                             <img
-                                src={imageUrl}
+                                src={imgSrc}
                                 alt={card.title}
                                 className="w-full h-full object-cover transition-transform duration-750 ease-out group-hover:scale-105"
-                                onError={(e) => { 
-                                    const fallbacks = {
-                                        1: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&w=600&q=80',
-                                        3: 'https://images.unsplash.com/photo-1561181286-d3fee7d55364?auto=format&fit=crop&w=600&q=80',
-                                        4: 'https://images.unsplash.com/photo-1531346878377-a5be20888e57?auto=format&fit=crop&w=600&q=80',
-                                        5: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&w=600&q=80',
-                                        6: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80',
-                                        7: 'https://images.unsplash.com/photo-1548907040-4d42b52115ca?auto=format&fit=crop&w=600&q=80',
-                                        8: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=80'
-                                    };
-                                    e.target.onerror = null; 
-                                    e.target.src = fallbacks[card.slot] || '/images/placeholder.png'; 
-                                }}
+                                onError={handleImgError}
                             />
                         </div>
                     </>
