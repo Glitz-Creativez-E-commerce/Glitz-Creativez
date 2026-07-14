@@ -128,7 +128,7 @@ const PromoCardItem = ({ card, isDouble = false }) => {
 
     let heightClass = 'h-[250px] md:h-[290px]';
     if (isSlot2) {
-        heightClass = 'h-[250px] md:h-[350px]';
+        heightClass = 'h-[250px] md:h-[364px]';
     } else if (card.slot === 5) {
         heightClass = 'min-h-[300px] md:h-[530px]';
     }
