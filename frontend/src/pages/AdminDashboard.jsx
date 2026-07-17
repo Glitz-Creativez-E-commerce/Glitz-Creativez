@@ -93,49 +93,62 @@ const AdminDashboard = () => {
     }, [isAuthenticated, user, navigate]);
 
     const fetchDashboardData = async () => {
+        setLoading(true);
+        const headers = getHeaders();
+        const timestamp = Date.now();
+
+        const promises = [
+            // 1. Fetch products
+            fetch(`${API_URL}/api/products/all?t=${timestamp}`, { headers })
+                .then(res => res.json())
+                .then(data => setProducts(data.data || []))
+                .catch(err => console.error('Error fetching products:', err)),
+
+            // 2. Fetch categories
+            fetch(`${API_URL}/api/categories?all=true&t=${timestamp}`, { headers })
+                .then(res => res.json())
+                .then(data => setCategories(data.data || []))
+                .catch(err => console.error('Error fetching categories:', err)),
+
+            // 3. Fetch orders
+            fetch(`${API_URL}/api/orders/admin/all?t=${timestamp}`, { headers })
+                .then(res => {
+                    if (res.status === 401) { dispatch(logout()); return; }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data) setOrders(data.data || []);
+                })
+                .catch(err => console.error('Error fetching orders:', err)),
+
+            // 4. Fetch users
+            fetch(`${API_URL}/api/auth/admin/users?t=${timestamp}`, { headers })
+                .then(res => {
+                    if (res.status === 401) { dispatch(logout()); return; }
+                    return res.json();
+                })
+                .then(data => {
+                    if (data) setUsers(data.data || []);
+                })
+                .catch(err => console.error('Error fetching users:', err)),
+
+            // 5. Fetch banners
+            fetch(`${API_URL}/api/banners?all=true&t=${timestamp}`, { headers })
+                .then(res => res.json())
+                .then(data => setBanners(data.data || []))
+                .catch(err => console.error('Error fetching banners:', err)),
+
+            // 6. Fetch promos
+            fetch(`${API_URL}/api/promos?all=true&t=${timestamp}`, { headers })
+                .then(res => res.json())
+                .then(data => setPromos(data.data || []))
+                .catch(err => console.error('Error fetching promos:', err))
+        ];
+
         try {
-            setLoading(true);
-            const headers = getHeaders();
-            const timestamp = Date.now();
-
-            // Fetch products
-            const productsRes = await fetch(`${API_URL}/api/products/all?t=${timestamp}`, { headers });
-
-            // Fetch categories
-            const categoriesRes = await fetch(`${API_URL}/api/categories?all=true&t=${timestamp}`, { headers });
-
-            // Fetch orders
-            const ordersRes = await fetch(`${API_URL}/api/orders/admin/all?t=${timestamp}`, { headers });
-            if (ordersRes.status === 401) { dispatch(logout()); return; }
-
-            // Fetch users
-            const usersRes = await fetch(`${API_URL}/api/auth/admin/users?t=${timestamp}`, { headers });
-            if (usersRes.status === 401) { dispatch(logout()); return; }
-
-            // Fetch banners
-            const bannersRes = await fetch(`${API_URL}/api/banners?all=true&t=${timestamp}`, { headers });
-
-            // Fetch promos
-            const promosRes = await fetch(`${API_URL}/api/promos?all=true&t=${timestamp}`, { headers });
-
-            const productsData = await productsRes.json();
-            const categoriesData = await categoriesRes.json();
-            const ordersData = await ordersRes.json(); // May throw if 401 and not JSON, but we checked status above
-            const usersData = await usersRes.json();
-            const bannersData = await bannersRes.json();
-            const promosData = await promosRes.json();
-
-            setProducts(productsData.data || []);
-            setCategories(categoriesData.data || []);
-            setOrders(ordersData.data || []);
-            setUsers(usersData.data || []);
-            setBanners(bannersData.data || []);
-            setPromos(promosData.data || []);
-
+            await Promise.allSettled(promises);
         } catch (error) {
-            console.error('Error fetching dashboard data:', error);
-            // If we get here, it might be due to json parse error from 401 response text
-            // We can't easily distinguish without checking status codes on every fetch
+            console.error('Error in dashboard fetches:', error);
         } finally {
             setLoading(false);
         }
@@ -149,12 +162,17 @@ const AdminDashboard = () => {
                 headers: getHeaders(),
                 body: JSON.stringify(productData),
             });
+            const data = await res.json();
             if (res.ok) {
-                fetchDashboardData(); // Refresh list
+                dispatch(addToast({ type: 'success', message: 'Product created successfully!' }));
+                fetchDashboardData();
                 setIsProductModalOpen(false);
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to create product' }));
             }
         } catch (error) {
             console.error('Error creating product:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while creating product' }));
         }
     };
 
@@ -165,13 +183,18 @@ const AdminDashboard = () => {
                 headers: getHeaders(),
                 body: JSON.stringify(productData),
             });
+            const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Product updated successfully!' }));
                 fetchDashboardData();
                 setIsProductModalOpen(false);
                 setEditingProduct(null);
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to update product' }));
             }
         } catch (error) {
             console.error('Error updating product:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while updating product' }));
         }
     };
 
@@ -182,11 +205,16 @@ const AdminDashboard = () => {
                 method: 'DELETE',
                 headers: getHeaders(),
             });
+            const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Product deleted successfully!' }));
                 fetchDashboardData();
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to delete product' }));
             }
         } catch (error) {
             console.error('Error deleting product:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while deleting product' }));
         }
     };
 
@@ -222,6 +250,7 @@ const AdminDashboard = () => {
             });
             const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Category created successfully!' }));
                 fetchDashboardData();
                 setIsCategoryModalOpen(false);
             } else {
@@ -229,6 +258,7 @@ const AdminDashboard = () => {
             }
         } catch (error) {
             console.error('Error creating category:', error);
+            dispatch(addToast({ type: 'error', message: error.message || 'Failed to create category' }));
             throw error;
         }
     };
@@ -242,6 +272,7 @@ const AdminDashboard = () => {
             });
             const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Category updated successfully!' }));
                 fetchDashboardData();
                 setIsCategoryModalOpen(false);
                 setEditingCategory(null);
@@ -250,6 +281,7 @@ const AdminDashboard = () => {
             }
         } catch (error) {
             console.error('Error updating category:', error);
+            dispatch(addToast({ type: 'error', message: error.message || 'Failed to update category' }));
             throw error;
         }
     };
@@ -261,11 +293,16 @@ const AdminDashboard = () => {
                 method: 'DELETE',
                 headers: getHeaders(),
             });
+            const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Category deleted successfully!' }));
                 fetchDashboardData();
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to delete category' }));
             }
         } catch (error) {
             console.error('Error deleting category:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while deleting category' }));
         }
     };
 
@@ -282,12 +319,17 @@ const AdminDashboard = () => {
                 headers: getHeaders(),
                 body: JSON.stringify(bannerData),
             });
+            const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Banner created successfully!' }));
                 fetchDashboardData();
                 setIsBannerModalOpen(false);
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to create banner' }));
             }
         } catch (error) {
             console.error('Error creating banner:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while creating banner' }));
         }
     };
 
@@ -298,13 +340,18 @@ const AdminDashboard = () => {
                 headers: getHeaders(),
                 body: JSON.stringify(bannerData),
             });
+            const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Banner updated successfully!' }));
                 fetchDashboardData();
                 setIsBannerModalOpen(false);
                 setEditingBanner(null);
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to update banner' }));
             }
         } catch (error) {
             console.error('Error updating banner:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while updating banner' }));
         }
     };
 
@@ -315,11 +362,16 @@ const AdminDashboard = () => {
                 method: 'DELETE',
                 headers: getHeaders(),
             });
+            const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Banner deleted successfully!' }));
                 fetchDashboardData();
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to delete banner' }));
             }
         } catch (error) {
             console.error('Error deleting banner:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while deleting banner' }));
         }
     };
 
@@ -336,14 +388,19 @@ const AdminDashboard = () => {
                 headers: getHeaders(),
                 body: JSON.stringify(promoData),
             });
+            const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Promotion saved successfully!' }));
                 fetchDashboardData();
                 setIsPromoModalOpen(false);
                 setEditingPromo(null);
                 setEditingSlotNum(null);
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to save promotion' }));
             }
         } catch (error) {
             console.error('Error saving promo card:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while saving promotion' }));
         }
     };
 
@@ -354,11 +411,16 @@ const AdminDashboard = () => {
                 method: 'DELETE',
                 headers: getHeaders(),
             });
+            const data = await res.json();
             if (res.ok) {
+                dispatch(addToast({ type: 'success', message: 'Promotion reset successfully!' }));
                 fetchDashboardData();
+            } else {
+                dispatch(addToast({ type: 'error', message: data.message || 'Failed to reset promotion' }));
             }
         } catch (error) {
             console.error('Error resetting promo card:', error);
+            dispatch(addToast({ type: 'error', message: 'An error occurred while resetting promotion' }));
         }
     };
 
