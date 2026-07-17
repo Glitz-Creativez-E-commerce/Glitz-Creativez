@@ -69,17 +69,10 @@ app.use(mongoSanitize());
 // Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 mins
-    max: 150, // Limit each IP to 150 requests per windowMs
+    max: 500, // Limit each IP to 500 requests per windowMs (increased for SPA parallel dashboard calls)
     message: 'Too many requests from this IP, please try again after 15 minutes'
 });
 app.use('/api', limiter);
-
-const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 mins
-    max: 20,
-    message: 'Too many authentication requests, please try again later'
-});
-app.use('/api/auth', authLimiter);
 
 import passport from 'passport';
 import './utils/passportSetup.js';
