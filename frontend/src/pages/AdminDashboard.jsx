@@ -72,7 +72,10 @@ const AdminDashboard = () => {
         const token = localStorage.getItem('token');
         return {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'Expires': '0'
         };
     };
 
@@ -93,26 +96,27 @@ const AdminDashboard = () => {
         try {
             setLoading(true);
             const headers = getHeaders();
+            const timestamp = Date.now();
 
             // Fetch products
-            const productsRes = await fetch(`${API_URL}/api/products/all`, { headers });
+            const productsRes = await fetch(`${API_URL}/api/products/all?t=${timestamp}`, { headers });
 
             // Fetch categories
-            const categoriesRes = await fetch(`${API_URL}/api/categories?all=true`, { headers });
+            const categoriesRes = await fetch(`${API_URL}/api/categories?all=true&t=${timestamp}`, { headers });
 
             // Fetch orders
-            const ordersRes = await fetch(`${API_URL}/api/orders/admin/all`, { headers });
+            const ordersRes = await fetch(`${API_URL}/api/orders/admin/all?t=${timestamp}`, { headers });
             if (ordersRes.status === 401) { dispatch(logout()); return; }
 
             // Fetch users
-            const usersRes = await fetch(`${API_URL}/api/auth/admin/users`, { headers });
+            const usersRes = await fetch(`${API_URL}/api/auth/admin/users?t=${timestamp}`, { headers });
             if (usersRes.status === 401) { dispatch(logout()); return; }
 
             // Fetch banners
-            const bannersRes = await fetch(`${API_URL}/api/banners?all=true`, { headers });
+            const bannersRes = await fetch(`${API_URL}/api/banners?all=true&t=${timestamp}`, { headers });
 
             // Fetch promos
-            const promosRes = await fetch(`${API_URL}/api/promos?all=true`, { headers });
+            const promosRes = await fetch(`${API_URL}/api/promos?all=true&t=${timestamp}`, { headers });
 
             const productsData = await productsRes.json();
             const categoriesData = await categoriesRes.json();
