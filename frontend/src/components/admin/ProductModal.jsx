@@ -519,24 +519,22 @@ Perfect for gifting on special occasions."
                         </div>
                         {/* Footer / Action Buttons */}
                         <div className="p-6 border-t border-gray-100 bg-gray-50/50 mt-auto min-h-[88px]">
-                            {activeTab === 'description' && (
-                                <div className="flex gap-3 max-w-3xl mx-auto justify-end">
-                                    <Button
-                                        type="button"
-                                        variant="secondary"
-                                        onClick={handleCloseModal}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        isLoading={loading}
-                                        icon={<FiCheck />}
-                                    >
-                                        Save Product
-                                    </Button>
-                                </div>
-                            )}
+                            <div className="flex gap-3 max-w-3xl mx-auto justify-end">
+                                <Button
+                                    type="button"
+                                    variant="secondary"
+                                    onClick={handleCloseModal}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    isLoading={loading}
+                                    icon={<FiCheck />}
+                                >
+                                    Save Product
+                                </Button>
+                            </div>
                         </div>
                     </form>
                 </motion.div >

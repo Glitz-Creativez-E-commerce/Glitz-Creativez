@@ -22,7 +22,8 @@ export const googleAuthCallback = asyncHandler(async (req, res) => {
 
     // Redirect to frontend with token in query params or set cookie
     // Since this is a vibe-coded React SPA, we'll redirect with token
-    res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/success?token=${token}`);
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+    res.redirect(`${frontendUrl}/auth/success?token=${token}`);
 });
 
 // @desc    Get user profile
@@ -287,6 +288,9 @@ export const login = asyncHandler(async (req, res) => {
 
         const emailSent = await sendBrevoEmail(user.email, user.name, 'Your Login Verification Code - Glitz Creativez', htmlContent);
         
+        // Always log OTP to server logs for diagnostics/staging checks
+        console.log(`[OTP DEBUG] Generated login OTP for ${user.email}: ${otp}`);
+
         if (!emailSent) {
             console.log(`[OTP] Sent code ${otp} to ${user.email} (Fallback console)`);
         }
@@ -402,6 +406,9 @@ export const resendLoginOTP = asyncHandler(async (req, res) => {
 
     const emailSent = await sendBrevoEmail(email, user.name, 'Your New Login Verification Code - Glitz Creativez', htmlContent);
 
+    // Always log OTP to server logs for diagnostics/staging checks
+    console.log(`[OTP DEBUG] Resent login OTP for ${email}: ${otp}`);
+
     if (!emailSent) {
         console.log(`[OTP] Sent new code ${otp} to ${email} (Fallback console)`);
     }
@@ -418,6 +425,13 @@ export const sendOTP = asyncHandler(async (req, res) => {
     if (!email) {
         res.status(400);
         throw new Error('Please provide an email');
+    }
+
+    // Check if user already exists
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+        res.status(400);
+        throw new Error('User already exists');
     }
 
     // Check for cooldown (60 seconds)
@@ -452,6 +466,9 @@ export const sendOTP = asyncHandler(async (req, res) => {
     `;
 
     const emailSent = await sendBrevoEmail(email, 'User', 'Verify Your Account - Glitz Creativez', htmlContent);
+
+    // Always log OTP to server logs for diagnostics/staging checks
+    console.log(`[OTP DEBUG] Generated registration OTP for ${email}: ${otp}`);
 
     if (!emailSent) {
         console.log(`[OTP] Sent code ${otp} to ${email} (Fallback console)`);

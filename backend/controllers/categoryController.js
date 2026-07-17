@@ -5,7 +5,15 @@ import Category from '../models/Category.js';
 // @route   GET /api/categories
 // @access  Public
 export const getCategories = asyncHandler(async (req, res) => {
-    const categories = await Category.find({ isActive: true }).sort('sequence');
+    const isAdminView = req.query.all === 'true';
+    
+    let categories;
+    if (isAdminView) {
+        categories = await Category.find({}).sort('sequence');
+    } else {
+        categories = await Category.find({ isActive: true }).sort('sequence');
+    }
+    
     res.json({ success: true, data: categories });
 });
 

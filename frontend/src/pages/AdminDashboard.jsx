@@ -98,7 +98,7 @@ const AdminDashboard = () => {
             const productsRes = await fetch(`${API_URL}/api/products/all`, { headers });
 
             // Fetch categories
-            const categoriesRes = await fetch(`${API_URL}/api/categories`, { headers });
+            const categoriesRes = await fetch(`${API_URL}/api/categories?all=true`, { headers });
 
             // Fetch orders
             const ordersRes = await fetch(`${API_URL}/api/orders/admin/all`, { headers });
@@ -1046,13 +1046,14 @@ const AdminDashboard = () => {
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Image</th>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Sequence</th>
                                                 <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Name</th>
+                                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Status</th>
                                                 <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider border border-gray-200">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-100">
                                             {categories.length === 0 ? (
                                                 <tr>
-                                                    <td colSpan="4" className="px-6 py-12 text-center text-gray-500 border border-gray-200">
+                                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500 border border-gray-200">
                                                         <div className="flex flex-col items-center justify-center">
                                                             <FiGift size={48} className="text-gray-300 mb-4" />
                                                             <p>No categories found</p>
@@ -1083,6 +1084,11 @@ const AdminDashboard = () => {
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-4 font-medium text-gray-900 border border-gray-200">{cat.name}</td>
+                                                        <td className="px-6 py-4 border border-gray-200">
+                                                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${cat.isActive !== false ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                                {cat.isActive !== false ? 'Active' : 'Inactive'}
+                                                            </span>
+                                                        </td>
                                                         <td className="px-6 py-4 text-right border border-gray-200">
                                                             <div className="flex items-center justify-end gap-2">
                                                                 <button

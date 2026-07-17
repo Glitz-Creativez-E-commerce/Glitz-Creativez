@@ -9,8 +9,10 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, category = null, categories 
     const [formData, setFormData] = useState({
         name: '',
         icon: '',
+        description: '',
         image: '',
-        sequence: 0
+        sequence: 0,
+        isActive: true
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -20,8 +22,10 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, category = null, categories 
             setFormData({
                 name: category.name || '',
                 icon: category.icon || '',
+                description: category.description || '',
                 image: category.image || '',
-                sequence: category.sequence || 0
+                sequence: category.sequence || 0,
+                isActive: category.isActive !== false
             });
         } else {
             // Auto-suggest next sequence
@@ -29,8 +33,10 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, category = null, categories 
             setFormData({
                 name: '',
                 icon: '',
+                description: '',
                 image: '',
-                sequence: maxSequence + 1
+                sequence: maxSequence + 1,
+                isActive: true
             });
         }
         setError('');
@@ -102,6 +108,17 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, category = null, categories 
                             placeholder="e.g. Birthday Gifts"
                             required
                         />
+
+                        {/* Category Description */}
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Description</label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                                placeholder="Write a short description..."
+                                className="w-full px-5 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:bg-white focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all outline-none resize-none h-24 text-gray-700"
+                            />
+                        </div>
                         {/* 1. Image Upload - Always Visible */}
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-700">Category Image <span className="text-red-500">*</span></label>
@@ -159,10 +176,25 @@ const CategoryModal = ({ isOpen, onClose, onSubmit, category = null, categories 
                                 onChange={(e) => setFormData(prev => ({ ...prev, sequence: e.target.value }))}
                                 placeholder="0"
                                 required
-                                disabled={!category} // New category sequence is automatic (last)
                                 error={sequenceError}
-                                helpText={!category ? "Automatic for new categories" : ""}
+                                helpText="Lower numbers display first"
                             />
+                        </div>
+
+                        {/* Active Status */}
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col justify-center">
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-bold text-gray-900">Active Status</span>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={formData.isActive}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                                </label>
+                            </div>
                         </div>
 
                         <div className="flex justify-end gap-3 mt-6">
