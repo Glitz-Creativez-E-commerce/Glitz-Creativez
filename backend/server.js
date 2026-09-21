@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import dns from 'dns';
-// dns.setServers(['1.1.1.1', '8.8.8.8']);
+dns.setServers(['1.1.1.1', '8.8.8.8']);
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
