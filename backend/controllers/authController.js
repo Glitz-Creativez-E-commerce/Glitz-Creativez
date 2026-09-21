@@ -185,10 +185,14 @@ export const adminLogin = asyncHandler(async (req, res) => {
     const { password } = req.body;
 
     const adminEmail = (process.env.ADMIN_EMAIL || 'admin@example.com').trim();
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const adminPassword = (process.env.ADMIN_PASSWORD || 'admin123').trim();
+
+    console.log(`[DEBUG ADMIN LOGIN] email provided: "${email}", password provided: "${password}"`);
+    console.log(`[DEBUG ADMIN LOGIN] Env adminEmail: "${adminEmail}", Env adminPassword: "${adminPassword}"`);
 
     // 1. Check if it matches the environment variable hardcoded override first
     const isEnvMatch = email.toLowerCase() === adminEmail.toLowerCase() && password === adminPassword;
+    console.log(`[DEBUG ADMIN LOGIN] isEnvMatch: ${isEnvMatch}`);
 
     let adminUser = null;
     let isAuthenticated = false;

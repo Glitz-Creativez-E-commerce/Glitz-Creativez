@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import dns from 'dns';
-dns.setServers(['1.1.1.1', '8.8.8.8']);
+// dns.setServers(['1.1.1.1', '8.8.8.8']);
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
@@ -28,7 +28,7 @@ const app = express();
 app.set('trust proxy', 1);
 
 // Middleware
-const allowedOrigins = ['http://localhost:5173', 'http://localhost:5176', 'http://localhost:5174', 'http://localhost:5175'];
+const allowedOrigins = ['http://localhost:5173', 'http://localhost:5176', 'http://localhost:5174', 'http://localhost:5175', 'https://www.glitzcreativez.com', 'https://glitzcreativez.com'];
 if (process.env.FRONTEND_URL) {
     const cleanOrigin = process.env.FRONTEND_URL.replace(/\/$/, '');
     allowedOrigins.push(cleanOrigin);
