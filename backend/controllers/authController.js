@@ -182,7 +182,7 @@ export const getUsers = asyncHandler(async (req, res) => {
 // @access  Public
 export const adminLogin = asyncHandler(async (req, res) => {
     const email = req.body.email ? req.body.email.trim() : '';
-    const { password } = req.body;
+    const password = req.body.password ? req.body.password.trim() : '';
 
     const adminEmail = (process.env.ADMIN_EMAIL || 'admin@example.com').trim();
     const adminPassword = (process.env.ADMIN_PASSWORD || 'admin123').trim();
@@ -247,7 +247,7 @@ export const adminLogin = asyncHandler(async (req, res) => {
 // @access  Public
 export const login = asyncHandler(async (req, res) => {
     const email = req.body.email ? req.body.email.trim() : '';
-    const { password } = req.body;
+    const password = req.body.password ? req.body.password.trim() : '';
 
     const user = await User.findOne({ email: { $regex: new RegExp('^' + email.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&') + '$', 'i') } });
 
